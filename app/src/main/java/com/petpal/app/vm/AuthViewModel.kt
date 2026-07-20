@@ -37,15 +37,15 @@ class AuthViewModel(
     private fun checkSession() {
         viewModelScope.launch {
             Log.d("PetPalFlow", "VM: checkSession iniciado")
-            sessionManager.tokenFlow.collect { token ->
-                Log.d("PetPalFlow", "VM: tokenFlow emit token=${if (token != null) "presente" else "null"}")
-                if (token != null) {
-                    Log.d("PetPalFlow", "VM: checkSession -> loadProfile (token existe)")
-                    loadProfile()
-                } else {
-                    Log.d("PetPalFlow", "VM: checkSession -> no token, estado LOGIN")
-                    _state.value = AuthState(isCheckingSession = false)
-                }
+            val token = sessionManager.getToken()
+            Log.d("PetPalFlow", "VM: token from DataStore=${if (token != null) "presente" else "null"}")
+            if (token != null) {
+                sessionManager.setTokenCache(token)
+                Log.d("PetPalFlow", "VM: checkSession -> loadProfile")
+                loadProfile()
+            } else {
+                Log.d("PetPalFlow", "VM: checkSession -> no token, login")
+                _state.value = AuthState(isCheckingSession = false)
             }
         }
     }
