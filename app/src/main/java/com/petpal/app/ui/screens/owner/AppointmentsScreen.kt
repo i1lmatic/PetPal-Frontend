@@ -88,8 +88,10 @@ fun AppointmentsScreen(
                                     }
                                 }
                                 Spacer(Modifier.width(12.dp))
-                                Column(Modifier.weight(1f)) {
-                                    Text(appt.reason, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+                                    Column(Modifier.weight(1f)) {
+                                    Text(appt.pet_name ?: "Mascota #${appt.pet_id}", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+                                    Spacer(Modifier.height(2.dp))
+                                    Text(appt.reason, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                                     Spacer(Modifier.height(2.dp))
                                     Text(appt.date_time.replace("T", " ").take(16), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                                 }

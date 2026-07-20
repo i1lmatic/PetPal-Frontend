@@ -67,12 +67,20 @@ fun AllAppointmentsScreen(
                         Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 Text(
-                                    text = "Mascota #${appt.pet_id}",
+                                    text = appt.pet_name ?: "Mascota #${appt.pet_id}",
                                     style = MaterialTheme.typography.titleSmall,
                                     fontWeight = FontWeight.SemiBold,
                                     modifier = Modifier.weight(1f)
                                 )
                                 StatusBadge(status = appt.status)
+                            }
+                            if (!appt.owner_name.isNullOrBlank()) {
+                                Spacer(Modifier.height(2.dp))
+                                Text(
+                                    appt.owner_name,
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
                             }
                             Spacer(Modifier.height(6.dp))
                             Text(
