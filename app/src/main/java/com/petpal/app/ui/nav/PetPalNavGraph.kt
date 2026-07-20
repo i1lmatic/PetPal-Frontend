@@ -335,6 +335,7 @@ fun PetPalNavGraph(
 
         composable(Routes.ADMIN_USERS) {
             val adminState = adminViewModel.state.collectAsState().value
+            val activeState = activeUsersViewModel.state.collectAsState().value
             ScreenWithBottomBar(
                 bottomBar = {
                     com.petpal.app.ui.components.AdminBottomBar(
@@ -351,13 +352,17 @@ fun PetPalNavGraph(
                     )
                 }
             ) {
-                com.petpal.app.ui.screens.admin.PendingUsersScreen(
-                    users = adminState.pendingUsers,
+                com.petpal.app.ui.screens.admin.UsersScreen(
+                    pendingUsers = adminState.pendingUsers,
+                    activeUsers = activeState.users,
                     isLoading = adminState.isLoading,
+                    isLoadingActive = activeState.isLoading,
                     error = adminState.error,
-                    onLoad = { adminViewModel.loadPendingUsers() },
+                    onLoadPending = { adminViewModel.loadPendingUsers() },
+                    onLoadActive = { activeUsersViewModel.load() },
                     onApprove = { adminViewModel.approveUser(it) },
-                    onReject = { adminViewModel.rejectUser(it) }
+                    onReject = { adminViewModel.rejectUser(it) },
+                    onUserClick = { user -> navController.navigate(Routes.clientDetail(user.id)) }
                 )
             }
         }

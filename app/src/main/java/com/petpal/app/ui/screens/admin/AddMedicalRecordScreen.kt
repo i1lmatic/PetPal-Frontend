@@ -39,13 +39,14 @@ fun AddMedicalRecordScreen(
         Spacer(Modifier.height(24.dp))
 
         ExposedDropdownMenuBox(
-            expanded = dropdownExpanded,
-            onExpandedChange = { dropdownExpanded = it }
+            expanded = dropdownExpanded && preselectedPetId == null,
+            onExpandedChange = { if (preselectedPetId == null) dropdownExpanded = it }
         ) {
             OutlinedTextField(
                 value = pets.find { it.id == selectedPetId }?.let { "${it.name} (${it.species})" } ?: "",
                 onValueChange = {},
                 readOnly = true,
+                enabled = preselectedPetId == null,
                 label = { Text("Mascota") },
                 leadingIcon = { Icon(Icons.Filled.Pets, null) },
                 trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = dropdownExpanded) },
