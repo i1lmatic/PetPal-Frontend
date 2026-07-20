@@ -265,6 +265,10 @@ fun PetPalNavGraph(
         composable(Routes.ADMIN_USERS) {
             Log.d("PetPalFlow", "NAV: renderizando ADMIN_USERS screen")
             val adminState = adminViewModel.state.collectAsState().value
+            val doLogout = {
+                authViewModel.logout()
+                navController.navigate(Routes.LOGIN) { popUpTo(0) { inclusive = true } }
+            }
             ScreenWithBottomBar(
                 bottomBar = {
                     com.petpal.app.ui.components.AdminBottomBar(
@@ -275,7 +279,8 @@ fun PetPalNavGraph(
                                 "admin_appointments" -> navController.navigate(Routes.ADMIN_APPOINTMENTS) { popUpTo(Routes.ADMIN_USERS) { inclusive = true } }
                                 "admin_records" -> navController.navigate(Routes.ADMIN_RECORDS) { popUpTo(Routes.ADMIN_USERS) { inclusive = true } }
                             }
-                        }
+                        },
+                        onLogout = doLogout
                     )
                 }
             ) {
@@ -285,16 +290,17 @@ fun PetPalNavGraph(
                     error = adminState.error,
                     onLoad = { adminViewModel.loadPendingUsers() },
                     onApprove = { adminViewModel.approveUser(it) },
-                    onLogout = {
-                        authViewModel.logout()
-                        navController.navigate(Routes.LOGIN) { popUpTo(0) { inclusive = true } }
-                    }
+                    onReject = { adminViewModel.rejectUser(it) }
                 )
             }
         }
 
         composable(Routes.ADMIN_APPOINTMENTS) {
             val adminState = adminViewModel.state.collectAsState().value
+            val doLogout = {
+                authViewModel.logout()
+                navController.navigate(Routes.LOGIN) { popUpTo(0) { inclusive = true } }
+            }
             ScreenWithBottomBar(
                 bottomBar = {
                     com.petpal.app.ui.components.AdminBottomBar(
@@ -305,7 +311,8 @@ fun PetPalNavGraph(
                                 "admin_appointments" -> navController.navigate(Routes.ADMIN_APPOINTMENTS) { popUpTo(Routes.ADMIN_USERS) { inclusive = true } }
                                 "admin_records" -> navController.navigate(Routes.ADMIN_RECORDS) { popUpTo(Routes.ADMIN_USERS) { inclusive = true } }
                             }
-                        }
+                        },
+                        onLogout = doLogout
                     )
                 }
             ) {
@@ -324,6 +331,10 @@ fun PetPalNavGraph(
             LaunchedEffect(recState.created) {
                 if (recState.created) medicalRecordViewModel.onCreatedHandled()
             }
+            val doLogout = {
+                authViewModel.logout()
+                navController.navigate(Routes.LOGIN) { popUpTo(0) { inclusive = true } }
+            }
             ScreenWithBottomBar(
                 bottomBar = {
                     com.petpal.app.ui.components.AdminBottomBar(
@@ -334,7 +345,8 @@ fun PetPalNavGraph(
                                 "admin_appointments" -> navController.navigate(Routes.ADMIN_APPOINTMENTS) { popUpTo(Routes.ADMIN_USERS) { inclusive = true } }
                                 "admin_records" -> navController.navigate(Routes.ADMIN_RECORDS) { popUpTo(Routes.ADMIN_USERS) { inclusive = true } }
                             }
-                        }
+                        },
+                        onLogout = doLogout
                     )
                 }
             ) {

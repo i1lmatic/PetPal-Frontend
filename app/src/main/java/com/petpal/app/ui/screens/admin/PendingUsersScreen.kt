@@ -21,7 +21,7 @@ fun PendingUsersScreen(
     error: String?,
     onLoad: () -> Unit,
     onApprove: (Int) -> Unit,
-    onLogout: () -> Unit
+    onReject: (Int) -> Unit
 ) {
     LaunchedEffect(Unit) { onLoad() }
 
@@ -47,7 +47,7 @@ fun PendingUsersScreen(
         } else if (users.isEmpty()) {
             Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Icon(Icons.Filled.Group, null, Modifier.size(64.dp), tint = MaterialTheme.colorScheme.outline)
+                    Icon(Icons.Filled.CheckCircle, null, Modifier.size(64.dp), tint = MaterialTheme.colorScheme.primary)
                     Spacer(Modifier.height(12.dp))
                     Text("No hay usuarios pendientes", color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
@@ -83,29 +83,31 @@ fun PendingUsersScreen(
                                 Spacer(Modifier.height(4.dp))
                                 Text(user.phone, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.outline)
                             }
-                            Button(
-                                onClick = { onApprove(user.id) },
-                                shape = MaterialTheme.shapes.small,
-                                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
-                            ) {
-                                Icon(Icons.Filled.Check, null, modifier = Modifier.size(16.dp))
-                                Spacer(Modifier.width(4.dp))
-                                Text("Aprobar", style = MaterialTheme.typography.labelMedium)
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                Button(
+                                    onClick = { onApprove(user.id) },
+                                    shape = MaterialTheme.shapes.small,
+                                    contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp),
+                                    modifier = Modifier.width(90.dp)
+                                ) {
+                                    Icon(Icons.Filled.Check, null, modifier = Modifier.size(14.dp))
+                                    Spacer(Modifier.width(4.dp))
+                                    Text("Aprobar", style = MaterialTheme.typography.labelSmall)
+                                }
+                                Spacer(Modifier.height(6.dp))
+                                OutlinedButton(
+                                    onClick = { onReject(user.id) },
+                                    shape = MaterialTheme.shapes.small,
+                                    contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp),
+                                    colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error),
+                                    modifier = Modifier.width(90.dp)
+                                ) {
+                                    Icon(Icons.Filled.Close, null, modifier = Modifier.size(14.dp))
+                                    Spacer(Modifier.width(4.dp))
+                                    Text("Rechazar", style = MaterialTheme.typography.labelSmall)
+                                }
                             }
                         }
-                    }
-                }
-                item {
-                    Spacer(Modifier.height(8.dp))
-                    OutlinedButton(
-                        onClick = onLogout,
-                        modifier = Modifier.fillMaxWidth().height(48.dp),
-                        shape = MaterialTheme.shapes.medium,
-                        colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error)
-                    ) {
-                        Icon(Icons.Filled.Logout, null, modifier = Modifier.size(20.dp))
-                        Spacer(Modifier.width(8.dp))
-                        Text("Cerrar sesi\u00f3n")
                     }
                 }
             }

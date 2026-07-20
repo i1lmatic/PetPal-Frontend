@@ -86,6 +86,16 @@ class AdminViewModel(private val repository: AdminRepository) : ViewModel() {
             }
         }
     }
+
+    fun rejectUser(userId: Int) {
+        viewModelScope.launch {
+            _state.value = _state.value.copy(error = null)
+            when (val result = repository.rejectUser(userId)) {
+                is Result.Success -> loadPendingUsers()
+                is Result.Error -> _state.value = _state.value.copy(error = result.message)
+            }
+        }
+    }
 }
 
 data class PetDetailState(

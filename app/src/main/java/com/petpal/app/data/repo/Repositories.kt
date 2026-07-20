@@ -51,6 +51,10 @@ class AdminRepository(private val api: PetPalApiService) {
         Result.Success(api.approveUser(userId))
     }.getOrElse { e -> mapError(e) }
 
+    suspend fun rejectUser(userId: Int): Result<com.petpal.app.data.model.User> = runCatching {
+        Result.Success(api.rejectUser(userId))
+    }.getOrElse { e -> mapError(e) }
+
     suspend fun getAllAppointments(): Result<List<com.petpal.app.data.model.Appointment>> = runCatching {
         Result.Success(api.getAllAppointments())
     }.getOrElse { e -> mapError(e) }

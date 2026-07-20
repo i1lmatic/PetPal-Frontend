@@ -40,6 +40,9 @@ interface PetPalApiService {
     @PATCH("admin/users/{id}/approve")
     suspend fun approveUser(@Path("id") userId: Int): User
 
+    @DELETE("admin/users/{id}/reject")
+    suspend fun rejectUser(@Path("id") userId: Int): User
+
     @GET("admin/appointments")
     suspend fun getAllAppointments(): List<Appointment>
 
