@@ -1,5 +1,6 @@
 package com.petpal.app.ui.nav
 
+import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -59,17 +60,22 @@ fun PetPalNavGraph(
 ) {
     val authState by authViewModel.state.collectAsState()
 
+    Log.d("PetPalFlow", "NAV: PetPalNavGraph recompose isLoggedIn=${authState.isLoggedIn} role=${authState.role} isPending=${authState.isPending} isCheckingSession=${authState.isCheckingSession}")
+
     LaunchedEffect(authState.isLoggedIn, authState.role, authState.isPending) {
-        if (authState.isCheckingSession) return@LaunchedEffect
+        if (authState.isCheckingSession) { Log.d("PetPalFlow", "NAV: checking session, skip"); return@LaunchedEffect }
         val currentRoute = navController.currentDestination?.route
+        Log.d("PetPalFlow", "NAV: isLoggedIn=${authState.isLoggedIn} role=${authState.role} status=${authState.status} isPending=${authState.isPending} current=$currentRoute")
         when {
             authState.isPending && currentRoute != Routes.PENDING -> {
+                Log.d("PetPalFlow", "NAV: -> PENDING")
                 navController.navigate(Routes.PENDING) { popUpTo(0) { inclusive = true } }
             }
             authState.isLoggedIn && authState.role == "admin"
                 && currentRoute != Routes.ADMIN_USERS
                 && currentRoute != Routes.ADMIN_APPOINTMENTS
                 && currentRoute != Routes.ADMIN_RECORDS -> {
+                Log.d("PetPalFlow", "NAV: -> ADMIN_USERS")
                 navController.navigate(Routes.ADMIN_USERS) { popUpTo(0) { inclusive = true } }
             }
             authState.isLoggedIn && authState.role == "client" && authState.status == "active"
@@ -79,6 +85,7 @@ fun PetPalNavGraph(
                 && currentRoute != Routes.ADD_PET
                 && currentRoute != Routes.ADD_APPOINTMENT
                 && !currentRoute.toString().startsWith("pet_detail") -> {
+                Log.d("PetPalFlow", "NAV: -> PETS_LIST")
                 navController.navigate(Routes.PETS_LIST) { popUpTo(0) { inclusive = true } }
             }
         }
@@ -256,6 +263,7 @@ fun PetPalNavGraph(
         }
 
         composable(Routes.ADMIN_USERS) {
+            Log.d("PetPalFlow", "NAV: renderizando ADMIN_USERS screen")
             val adminState = adminViewModel.state.collectAsState().value
             ScreenWithBottomBar(
                 bottomBar = {

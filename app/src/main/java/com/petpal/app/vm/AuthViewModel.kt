@@ -1,5 +1,6 @@
 package com.petpal.app.vm
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.petpal.app.data.local.SessionManager
@@ -29,15 +30,20 @@ class AuthViewModel(
     val state: StateFlow<AuthState> = _state.asStateFlow()
 
     init {
+        Log.d("PetPalFlow", "VM: AuthViewModel creado")
         checkSession()
     }
 
     private fun checkSession() {
         viewModelScope.launch {
+            Log.d("PetPalFlow", "VM: checkSession iniciado")
             sessionManager.tokenFlow.collect { token ->
+                Log.d("PetPalFlow", "VM: tokenFlow emit token=${if (token != null) "presente" else "null"}")
                 if (token != null) {
+                    Log.d("PetPalFlow", "VM: checkSession -> loadProfile (token existe)")
                     loadProfile()
                 } else {
+                    Log.d("PetPalFlow", "VM: checkSession -> no token, estado LOGIN")
                     _state.value = AuthState(isCheckingSession = false)
                 }
             }
@@ -45,17 +51,23 @@ class AuthViewModel(
     }
 
     fun login(email: String, password: String) {
+        Log.d("PetPalFlow", "VM: 1. login() llamado email=$email")
         viewModelScope.launch {
             _state.value = _state.value.copy(isLoading = true, error = null)
+            Log.d("PetPalFlow", "VM: 2. llamando repository.login()")
             when (val result = repository.login(email, password)) {
                 is Result.Success -> {
+                    Log.d("PetPalFlow", "VM: 3. login SUCCESS -> loadProfile()")
                     loadProfile()
                 }
                 is Result.Error -> {
+                    Log.e("PetPalFlow", "VM: 3. login ERROR code=${result.code} msg=${result.message}")
                     if (result.code == 403) {
                         _state.value = _state.value.copy(isLoading = false, isPending = true, error = null)
+                        Log.d("PetPalFlow", "VM: 3a. cuenta pendiente -> isPending=true")
                     } else {
                         _state.value = _state.value.copy(isLoading = false, error = result.message)
+                        Log.d("PetPalFlow", "VM: 3b. error mostrado en pantalla")
                     }
                 }
             }
@@ -63,13 +75,17 @@ class AuthViewModel(
     }
 
     fun register(email: String, password: String, fullName: String, phone: String) {
+        Log.d("PetPalFlow", "VM: 1. register() llamado email=$email")
         viewModelScope.launch {
             _state.value = _state.value.copy(isLoading = true, error = null)
+            Log.d("PetPalFlow", "VM: 2. llamando repository.register()")
             when (val result = repository.register(email, password, fullName, phone)) {
                 is Result.Success -> {
+                    Log.d("PetPalFlow", "VM: 3. register SUCCESS -> isPending=true")
                     _state.value = _state.value.copy(isLoading = false, isPending = true)
                 }
                 is Result.Error -> {
+                    Log.e("PetPalFlow", "VM: 3. register ERROR msg=${result.message}")
                     _state.value = _state.value.copy(isLoading = false, error = result.message)
                 }
             }
@@ -77,11 +93,14 @@ class AuthViewModel(
     }
 
     fun loadProfile() {
+        Log.d("PetPalFlow", "VM: loadProfile() iniciado")
         viewModelScope.launch {
             _state.value = _state.value.copy(isLoading = true, isCheckingSession = true)
+            Log.d("PetPalFlow", "VM: loadProfile llamando repository.getProfile()")
             when (val result = repository.getProfile()) {
                 is Result.Success -> {
                     val user = result.data
+                    Log.d("PetPalFlow", "VM: loadProfile SUCCESS role=${user.role} status=${user.status}")
                     _state.value = AuthState(
                         isLoading = false,
                         isLoggedIn = true,
@@ -93,6 +112,7 @@ class AuthViewModel(
                     )
                 }
                 is Result.Error -> {
+                    Log.e("PetPalFlow", "VM: loadProfile ERROR -> limpiando sesion msg=${result.message}")
                     sessionManager.clear()
                     _state.value = AuthState(isCheckingSession = false, error = result.message)
                 }
@@ -101,6 +121,7 @@ class AuthViewModel(
     }
 
     fun logout() {
+        Log.d("PetPalFlow", "VM: logout()")
         viewModelScope.launch {
             repository.logout()
             _state.value = AuthState(isCheckingSession = false)

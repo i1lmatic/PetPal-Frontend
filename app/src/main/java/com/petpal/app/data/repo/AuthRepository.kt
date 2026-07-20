@@ -1,5 +1,6 @@
 package com.petpal.app.data.repo
 
+import android.util.Log
 import com.petpal.app.data.model.TokenResponse
 import com.petpal.app.data.model.User
 import com.petpal.app.data.model.UserCreate
@@ -25,17 +26,33 @@ class AuthRepository(
         Result.Success(user)
     }.getOrElse { e -> mapError(e) }
 
-    suspend fun login(email: String, password: String): Result<TokenResponse> = runCatching {
-        val res = api.login(email, password)
-        sessionManager.saveTokenOnly(res.access_token)
-        Result.Success(res)
-    }.getOrElse { e -> mapError(e) }
+    suspend fun login(email: String, password: String): Result<TokenResponse> {
+        Log.d("PetPalFlow", "REPO: api.login() iniciando")
+        return runCatching {
+            val res = api.login(email, password)
+            Log.d("PetPalFlow", "REPO: api.login() OK, guardando token")
+            sessionManager.saveTokenOnly(res.access_token)
+            Log.d("PetPalFlow", "REPO: token guardado")
+            Result.Success(res)
+        }.getOrElse { e ->
+            Log.e("PetPalFlow", "REPO: api.login() FAIL", e)
+            mapError(e)
+        }
+    }
 
-    suspend fun getProfile(): Result<User> = runCatching {
-        val user = api.getMyProfile()
-        sessionManager.saveUserInfo(user)
-        Result.Success(user)
-    }.getOrElse { e -> mapError(e) }
+    suspend fun getProfile(): Result<User> {
+        Log.d("PetPalFlow", "REPO: api.getMyProfile() iniciando")
+        return runCatching {
+            val user = api.getMyProfile()
+            Log.d("PetPalFlow", "REPO: getMyProfile() OK role=${user.role}")
+            sessionManager.saveUserInfo(user)
+            Log.d("PetPalFlow", "REPO: user info guardada")
+            Result.Success(user)
+        }.getOrElse { e ->
+            Log.e("PetPalFlow", "REPO: getMyProfile() FAIL", e)
+            mapError(e)
+        }
+    }
 
     suspend fun logout() {
         sessionManager.clear()
