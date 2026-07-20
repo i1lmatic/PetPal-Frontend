@@ -14,7 +14,8 @@ import com.petpal.app.ui.components.InfoRow
 @Composable
 fun ProfileScreen(
     user: User?,
-    onLogout: () -> Unit
+    onLogout: () -> Unit,
+    onEditProfile: () -> Unit
 ) {
     Column(
         modifier = Modifier.fillMaxSize().padding(24.dp)
@@ -72,6 +73,18 @@ fun ProfileScreen(
         }
 
         Spacer(Modifier.weight(1f))
+
+        OutlinedButton(
+            onClick = onEditProfile,
+            modifier = Modifier.fillMaxWidth().height(50.dp),
+            shape = MaterialTheme.shapes.medium
+        ) {
+            Icon(Icons.Filled.Edit, null, modifier = Modifier.size(20.dp))
+            Spacer(Modifier.width(8.dp))
+            Text("Editar perfil")
+        }
+
+        Spacer(Modifier.height(8.dp))
 
         OutlinedButton(
             onClick = onLogout,

@@ -47,7 +47,9 @@ data class Appointment(
     val owner_id: Int,
     val date_time: String,
     val reason: String,
-    val status: String
+    val status: String,
+    val owner_name: String? = null,
+    val pet_name: String? = null
 )
 
 data class AppointmentCreate(
@@ -74,4 +76,28 @@ data class MedicalRecordCreate(
 
 data class AppointmentStatusUpdate(
     val status: String
+)
+
+data class UserUpdateProfile(
+    val full_name: String? = null,
+    val phone: String? = null
+)
+
+data class DashboardStats(
+    val total_users: Int = 0,
+    val total_pets: Int = 0,
+    val total_appointments: Int = 0,
+    val appointments_today: Int = 0,
+    val pending_appointments: Int = 0,
+    val pending_users: Int = 0
+)
+
+data class UserDetail(
+    val id: Int,
+    val email: String,
+    val full_name: String,
+    val phone: String,
+    val role: String,
+    val status: String,
+    val pets: List<Pet> = emptyList()
 )

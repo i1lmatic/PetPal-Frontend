@@ -54,6 +54,10 @@ class AuthRepository(
         }
     }
 
+    suspend fun updateProfile(fullName: String?, phone: String?): Result<User> = runCatching {
+        Result.Success(api.updateMyProfile(com.petpal.app.data.model.UserUpdateProfile(fullName, phone)))
+    }.getOrElse { e -> mapError(e) }
+
     suspend fun logout() {
         sessionManager.clear()
     }

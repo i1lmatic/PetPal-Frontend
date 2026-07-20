@@ -81,6 +81,56 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    private val dashboardViewModel: DashboardViewModel by viewModels {
+        val repo = AdminRepository(app.apiService)
+        object : androidx.lifecycle.ViewModelProvider.Factory {
+            @Suppress("UNCHECKED_CAST")
+            override fun <T : androidx.lifecycle.ViewModel> create(modelClass: Class<T>): T {
+                return DashboardViewModel(repo) as T
+            }
+        }
+    }
+
+    private val allPetsViewModel: AllPetsViewModel by viewModels {
+        val repo = AdminRepository(app.apiService)
+        object : androidx.lifecycle.ViewModelProvider.Factory {
+            @Suppress("UNCHECKED_CAST")
+            override fun <T : androidx.lifecycle.ViewModel> create(modelClass: Class<T>): T {
+                return AllPetsViewModel(repo) as T
+            }
+        }
+    }
+
+    private val activeUsersViewModel: ActiveUsersViewModel by viewModels {
+        val repo = AdminRepository(app.apiService)
+        object : androidx.lifecycle.ViewModelProvider.Factory {
+            @Suppress("UNCHECKED_CAST")
+            override fun <T : androidx.lifecycle.ViewModel> create(modelClass: Class<T>): T {
+                return ActiveUsersViewModel(repo) as T
+            }
+        }
+    }
+
+    private val clientDetailViewModel: ClientDetailViewModel by viewModels {
+        val repo = AdminRepository(app.apiService)
+        object : androidx.lifecycle.ViewModelProvider.Factory {
+            @Suppress("UNCHECKED_CAST")
+            override fun <T : androidx.lifecycle.ViewModel> create(modelClass: Class<T>): T {
+                return ClientDetailViewModel(repo) as T
+            }
+        }
+    }
+
+    private val editProfileViewModel: EditProfileViewModel by viewModels {
+        val repo = AuthRepository(app.apiService, app.sessionManager)
+        object : androidx.lifecycle.ViewModelProvider.Factory {
+            @Suppress("UNCHECKED_CAST")
+            override fun <T : androidx.lifecycle.ViewModel> create(modelClass: Class<T>): T {
+                return EditProfileViewModel(repo) as T
+            }
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -100,7 +150,12 @@ class MainActivity : ComponentActivity() {
                         appointmentsViewModel = appointmentsViewModel,
                         petDetailViewModel = petDetailViewModel,
                         adminViewModel = adminViewModel,
-                        medicalRecordViewModel = medicalRecordViewModel
+                        medicalRecordViewModel = medicalRecordViewModel,
+                        dashboardViewModel = dashboardViewModel,
+                        allPetsViewModel = allPetsViewModel,
+                        activeUsersViewModel = activeUsersViewModel,
+                        clientDetailViewModel = clientDetailViewModel,
+                        editProfileViewModel = editProfileViewModel
                     )
                 }
             }

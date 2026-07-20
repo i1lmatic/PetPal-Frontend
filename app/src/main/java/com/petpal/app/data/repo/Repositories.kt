@@ -55,6 +55,22 @@ class AdminRepository(private val api: PetPalApiService) {
         Result.Success(api.rejectUser(userId))
     }.getOrElse { e -> mapError(e) }
 
+    suspend fun getActiveUsers(): Result<List<com.petpal.app.data.model.User>> = runCatching {
+        Result.Success(api.getActiveUsers())
+    }.getOrElse { e -> mapError(e) }
+
+    suspend fun getUserDetail(userId: Int): Result<com.petpal.app.data.model.UserDetail> = runCatching {
+        Result.Success(api.getUserDetail(userId))
+    }.getOrElse { e -> mapError(e) }
+
+    suspend fun getAllPets(search: String = ""): Result<List<com.petpal.app.data.model.Pet>> = runCatching {
+        Result.Success(api.getAllPets(search))
+    }.getOrElse { e -> mapError(e) }
+
+    suspend fun getDashboardStats(): Result<com.petpal.app.data.model.DashboardStats> = runCatching {
+        Result.Success(api.getDashboardStats())
+    }.getOrElse { e -> mapError(e) }
+
     suspend fun getAllAppointments(): Result<List<com.petpal.app.data.model.Appointment>> = runCatching {
         Result.Success(api.getAllAppointments())
     }.getOrElse { e -> mapError(e) }

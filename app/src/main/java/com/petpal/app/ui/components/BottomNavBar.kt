@@ -26,9 +26,10 @@ enum class AdminNavItem(
     val unselectedIcon: ImageVector,
     val route: String
 ) {
+    Dashboard("Inicio", Icons.Filled.Dashboard, Icons.Outlined.Dashboard, "admin_dashboard"),
     Users("Usuarios", Icons.Filled.Group, Icons.Outlined.Group, "admin_users"),
     Appointments("Citas", Icons.Filled.CalendarMonth, Icons.Outlined.CalendarMonth, "admin_appointments"),
-    Records("Historial", Icons.Filled.MedicalServices, Icons.Outlined.MedicalServices, "admin_records"),
+    Pets("Mascotas", Icons.Filled.Pets, Icons.Outlined.Pets, "admin_pets"),
     Leave("Salir", Icons.Filled.Logout, Icons.Outlined.Logout, "salir")
 }
 

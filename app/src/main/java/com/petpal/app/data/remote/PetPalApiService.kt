@@ -19,6 +19,9 @@ interface PetPalApiService {
     @GET("users/me")
     suspend fun getMyProfile(): User
 
+    @PATCH("users/me")
+    suspend fun updateMyProfile(@Body update: UserUpdateProfile): User
+
     @GET("pets/")
     suspend fun getMyPets(): List<Pet>
 
@@ -42,6 +45,18 @@ interface PetPalApiService {
 
     @DELETE("admin/users/{id}/reject")
     suspend fun rejectUser(@Path("id") userId: Int): User
+
+    @GET("admin/users/active")
+    suspend fun getActiveUsers(): List<User>
+
+    @GET("admin/users/{id}")
+    suspend fun getUserDetail(@Path("id") userId: Int): UserDetail
+
+    @GET("admin/pets")
+    suspend fun getAllPets(@Query("search") search: String = ""): List<Pet>
+
+    @GET("admin/dashboard/stats")
+    suspend fun getDashboardStats(): DashboardStats
 
     @GET("admin/appointments")
     suspend fun getAllAppointments(): List<Appointment>
