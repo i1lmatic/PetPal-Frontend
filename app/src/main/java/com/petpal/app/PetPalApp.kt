@@ -26,9 +26,11 @@ class PetPalApp : Application() {
                     appendLine("Thread: ${thread.name}")
                     appendLine(sw.toString())
                 }
-                File(cacheDir, "crash_petpal.log").writeText(crashLog)
                 Log.e("PetPalCrash", crashLog)
-            } catch (_: Throwable) {}
+                File(cacheDir, "crash_petpal.log").writeText(crashLog)
+            } catch (e: Throwable) {
+                Log.e("PetPalCrash", "Fallo al escribir crash log", e)
+            }
             original?.uncaughtException(thread, throwable)
         }
 

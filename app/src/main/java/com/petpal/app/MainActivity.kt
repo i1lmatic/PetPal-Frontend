@@ -88,8 +88,7 @@ class MainActivity : ComponentActivity() {
         if (crashFile.exists()) {
             val content = crashFile.readText()
             Log.e("PreviousCrash", content)
-            Toast.makeText(this, "CRASH PREVIO DETECTADO\n${content.take(300)}", Toast.LENGTH_LONG).show()
-            crashFile.delete()
+            Toast.makeText(this, "CRASH: ${content.take(300)}", Toast.LENGTH_LONG).show()
         }
 
         setContent {
