@@ -21,7 +21,8 @@ fun AllAppointmentsScreen(
     isLoading: Boolean,
     error: String?,
     onLoad: () -> Unit,
-    onUpdateStatus: (Int, String) -> Unit
+    onUpdateStatus: (Int, String) -> Unit,
+    onCreateRecord: (Appointment) -> Unit
 ) {
     LaunchedEffect(Unit) { onLoad() }
 
@@ -145,6 +146,20 @@ fun AllAppointmentsScreen(
                                         Spacer(Modifier.width(4.dp))
                                         Text("Cancelar", style = MaterialTheme.typography.labelSmall)
                                     }
+                                }
+                            }
+
+                            if (appt.status == "completed") {
+                                Spacer(Modifier.height(12.dp))
+                                OutlinedButton(
+                                    onClick = { onCreateRecord(appt) },
+                                    modifier = Modifier.fillMaxWidth(),
+                                    shape = MaterialTheme.shapes.small,
+                                    contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)
+                                ) {
+                                    Icon(Icons.Filled.MedicalServices, null, modifier = Modifier.size(16.dp))
+                                    Spacer(Modifier.width(4.dp))
+                                    Text("Crear historial m\u00e9dico", style = MaterialTheme.typography.labelSmall)
                                 }
                             }
                         }

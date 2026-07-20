@@ -20,10 +20,12 @@ fun AddMedicalRecordScreen(
     onSave: (Int, String, String, String) -> Unit,
     onBack: () -> Unit,
     onLoadPets: () -> Unit,
-    onClearError: () -> Unit
+    onClearError: () -> Unit,
+    preselectedPetId: Int? = null,
+    preselectedDiagnosis: String? = null
 ) {
-    var selectedPetId by remember { mutableStateOf<Int?>(null) }
-    var diagnosis by remember { mutableStateOf("") }
+    var selectedPetId by remember { mutableStateOf(preselectedPetId) }
+    var diagnosis by remember { mutableStateOf(preselectedDiagnosis ?: "") }
     var treatment by remember { mutableStateOf("") }
     var notes by remember { mutableStateOf("") }
     var dropdownExpanded by remember { mutableStateOf(false) }

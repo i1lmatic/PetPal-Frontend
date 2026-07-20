@@ -12,15 +12,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.petpal.app.data.model.Appointment
 import com.petpal.app.data.model.Pet
 
 @Composable
 fun PetsListScreen(
     pets: List<Pet>,
+    appointments: List<Appointment>,
     isLoading: Boolean,
     error: String?,
     onLoadPets: () -> Unit,
     onAddPet: () -> Unit,
+    onAddAppointment: () -> Unit,
     onPetClick: (Pet) -> Unit
 ) {
     LaunchedEffect(Unit) {
@@ -44,6 +47,61 @@ fun PetsListScreen(
                 color = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.padding(horizontal = 20.dp, vertical = 16.dp)
             )
+
+            val nextAppointment = appointments
+                .filter { it.status != "cancelled" && it.status != "completed" }
+                .minByOrNull { it.date_time }
+
+            if (!isLoading && error == null && pets.isNotEmpty()) {
+                if (nextAppointment != null) {
+                    Card(
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+                        shape = MaterialTheme.shapes.medium,
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer)
+                    ) {
+                        Column(Modifier.padding(16.dp)) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Icon(Icons.Filled.Event, null, tint = MaterialTheme.colorScheme.secondary, modifier = Modifier.size(20.dp))
+                                Spacer(Modifier.width(8.dp))
+                                Text("Pr\u00f3xima cita", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onSecondaryContainer)
+                            }
+                            Spacer(Modifier.height(6.dp))
+                            Text(
+                                "${nextAppointment.pet_name ?: "Mascota"} \u2022 ${nextAppointment.date_time.replace("T", " ").take(16)}",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSecondaryContainer
+                            )
+                            Text(nextAppointment.reason, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.7f))
+                        }
+                    }
+                    Spacer(Modifier.height(8.dp))
+                }
+
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Button(
+                        onClick = onAddAppointment,
+                        modifier = Modifier.weight(1f).height(44.dp),
+                        shape = MaterialTheme.shapes.medium
+                    ) {
+                        Icon(Icons.Filled.Add, null, modifier = Modifier.size(18.dp))
+                        Spacer(Modifier.width(4.dp))
+                        Text("Pedir cita", style = MaterialTheme.typography.labelMedium)
+                    }
+                    OutlinedButton(
+                        onClick = onAddPet,
+                        modifier = Modifier.weight(1f).height(44.dp),
+                        shape = MaterialTheme.shapes.medium
+                    ) {
+                        Icon(Icons.Filled.Pets, null, modifier = Modifier.size(18.dp))
+                        Spacer(Modifier.width(4.dp))
+                        Text("Agregar mascota", style = MaterialTheme.typography.labelMedium)
+                    }
+                }
+                Spacer(Modifier.height(12.dp))
+            }
 
             if (isLoading) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {

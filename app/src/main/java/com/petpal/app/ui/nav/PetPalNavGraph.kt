@@ -17,6 +17,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.petpal.app.vm.*
+import java.net.URLEncoder
 
 object Routes {
     const val LOGIN = "login"
@@ -36,6 +37,7 @@ object Routes {
     const val ADMIN_RECORDS = "admin_records"
     const val ADMIN_CLIENT_DETAIL = "admin_client_detail/{userId}"
     const val ADMIN_PET_HISTORY = "admin_pet_history/{petId}"
+    const val ADMIN_RECORDS_FROM_APPT = "admin_records?petId={petId}&diagnosis={diagnosis}"
 
     fun petDetail(petId: Int) = "pet_detail/$petId"
     fun clientDetail(userId: Int) = "admin_client_detail/$userId"
@@ -141,6 +143,7 @@ fun PetPalNavGraph(
 
         composable(Routes.PETS_LIST) {
             val petsState = petsViewModel.state.collectAsState().value
+            val apptState = appointmentsViewModel.state.collectAsState().value
             ScreenWithBottomBar(
                 bottomBar = {
                     com.petpal.app.ui.components.OwnerBottomBar(
@@ -157,10 +160,12 @@ fun PetPalNavGraph(
             ) {
                 com.petpal.app.ui.screens.owner.PetsListScreen(
                     pets = petsState.pets,
+                    appointments = apptState.appointments,
                     isLoading = petsState.isLoading,
                     error = petsState.error,
                     onLoadPets = { petsViewModel.loadPets() },
                     onAddPet = { navController.navigate(Routes.ADD_PET) },
+                    onAddAppointment = { navController.navigate(Routes.ADD_APPOINTMENT) },
                     onPetClick = { pet -> navController.navigate(Routes.petDetail(pet.id)) }
                 )
             }
@@ -380,7 +385,10 @@ fun PetPalNavGraph(
                     isLoading = adminState.isLoading,
                     error = adminState.error,
                     onLoad = { adminViewModel.loadAllAppointments() },
-                    onUpdateStatus = { id, status -> adminViewModel.updateAppointmentStatus(id, status) }
+                    onUpdateStatus = { id, status -> adminViewModel.updateAppointmentStatus(id, status) },
+                    onCreateRecord = { appt ->
+                        navController.navigate("admin_records?petId=${appt.pet_id}&diagnosis=${URLEncoder.encode(appt.reason, "UTF-8")}")
+                    }
                 )
             }
         }
@@ -461,6 +469,39 @@ fun PetPalNavGraph(
                 onBack = { navController.popBackStack() },
                 onPetClick = { pet -> navController.navigate(Routes.petHistory(pet.id)) },
                 userId = userId
+            )
+        }
+
+        composable(
+            Routes.ADMIN_RECORDS_FROM_APPT,
+            arguments = listOf(
+                navArgument("petId") { type = NavType.IntType },
+                navArgument("diagnosis") { type = NavType.StringType; defaultValue = "" }
+            )
+        ) { backStackEntry ->
+            val petId = backStackEntry.arguments?.getInt("petId") ?: return@composable
+            val diagnosis = backStackEntry.arguments?.getString("diagnosis") ?: ""
+            val recState = medicalRecordViewModel.state.collectAsState().value
+            val allPets = allPetsViewModel.state.collectAsState().value.pets
+            LaunchedEffect(Unit) { allPetsViewModel.load("") }
+            LaunchedEffect(recState.created) {
+                if (recState.created) {
+                    medicalRecordViewModel.onCreatedHandled()
+                    navController.popBackStack()
+                }
+            }
+            com.petpal.app.ui.screens.admin.AddMedicalRecordScreen(
+                pets = allPets,
+                isLoading = recState.isLoading,
+                error = recState.error,
+                onSave = { pid, diag, treat, notes ->
+                    medicalRecordViewModel.createRecord(pid, diag, treat, notes)
+                },
+                onBack = { navController.popBackStack() },
+                onLoadPets = { allPetsViewModel.load("") },
+                onClearError = { medicalRecordViewModel.clearError() },
+                preselectedPetId = petId,
+                preselectedDiagnosis = diagnosis
             )
         }
 
