@@ -3,6 +3,8 @@ package com.petpal.app.ui.nav
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -38,11 +40,10 @@ fun ScreenWithBottomBar(
     bottomBar: @Composable () -> Unit,
     content: @Composable () -> Unit
 ) {
-    Column(Modifier.fillMaxSize()) {
-        Box(Modifier.weight(1f)) {
+    Scaffold(bottomBar = bottomBar) { innerPadding ->
+        Box(Modifier.fillMaxSize().padding(innerPadding)) {
             content()
         }
-        bottomBar()
     }
 }
 
@@ -58,17 +59,32 @@ fun PetPalNavGraph(
 ) {
     val authState by authViewModel.state.collectAsState()
 
-    val startDestination = when {
-        authState.isCheckingSession -> null
-        authState.isPending -> Routes.PENDING
-        authState.isLoggedIn && authState.role == "admin" -> Routes.ADMIN_USERS
-        authState.isLoggedIn -> Routes.PETS_LIST
-        else -> Routes.LOGIN
+    LaunchedEffect(authState.isLoggedIn, authState.role, authState.isPending) {
+        if (authState.isCheckingSession) return@LaunchedEffect
+        val currentRoute = navController.currentDestination?.route
+        when {
+            authState.isPending && currentRoute != Routes.PENDING -> {
+                navController.navigate(Routes.PENDING) { popUpTo(0) { inclusive = true } }
+            }
+            authState.isLoggedIn && authState.role == "admin"
+                && currentRoute != Routes.ADMIN_USERS
+                && currentRoute != Routes.ADMIN_APPOINTMENTS
+                && currentRoute != Routes.ADMIN_RECORDS -> {
+                navController.navigate(Routes.ADMIN_USERS) { popUpTo(0) { inclusive = true } }
+            }
+            authState.isLoggedIn && authState.role == "client" && authState.status == "active"
+                && currentRoute != Routes.PETS_LIST
+                && currentRoute != Routes.APPOINTMENTS
+                && currentRoute != Routes.PROFILE
+                && currentRoute != Routes.ADD_PET
+                && currentRoute != Routes.ADD_APPOINTMENT
+                && !currentRoute.toString().startsWith("pet_detail") -> {
+                navController.navigate(Routes.PETS_LIST) { popUpTo(0) { inclusive = true } }
+            }
+        }
     }
 
-    if (startDestination == null) return
-
-    NavHost(navController = navController, startDestination = startDestination) {
+    NavHost(navController = navController, startDestination = Routes.LOGIN) {
 
         composable(Routes.LOGIN) {
             com.petpal.app.ui.screens.auth.LoginScreen(

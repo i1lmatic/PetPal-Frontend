@@ -10,6 +10,7 @@ import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.runBlocking
 
 private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "petpal_session")
 
@@ -24,6 +25,9 @@ class SessionManager(private val context: Context) {
         private val KEY_USER_STATUS = stringPreferencesKey("status")
     }
 
+    var currentToken: String? = null
+        private set
+
     val tokenFlow: Flow<String?> = context.dataStore.data.map { it[KEY_TOKEN] }
 
     val userRoleFlow: Flow<String?> = context.dataStore.data.map { it[KEY_USER_ROLE] }
@@ -32,7 +36,14 @@ class SessionManager(private val context: Context) {
 
     val userNameFlow: Flow<String?> = context.dataStore.data.map { it[KEY_USER_NAME] }
 
+    init {
+        runBlocking {
+            currentToken = context.dataStore.data.first()[KEY_TOKEN]
+        }
+    }
+
     suspend fun saveTokenOnly(token: String) {
+        currentToken = token
         context.dataStore.edit { it[KEY_TOKEN] = token }
     }
 
@@ -49,6 +60,7 @@ class SessionManager(private val context: Context) {
     suspend fun getToken(): String? = context.dataStore.data.first()[KEY_TOKEN]
 
     suspend fun clear() {
+        currentToken = null
         context.dataStore.edit { it.clear() }
     }
 }

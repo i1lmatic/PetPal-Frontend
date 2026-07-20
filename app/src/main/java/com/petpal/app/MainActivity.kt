@@ -1,6 +1,8 @@
 package com.petpal.app
 
 import android.os.Bundle
+import android.util.Log
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -12,6 +14,7 @@ import com.petpal.app.data.repo.*
 import com.petpal.app.ui.nav.PetPalNavGraph
 import com.petpal.app.ui.theme.PetPalTheme
 import com.petpal.app.vm.*
+import java.io.File
 
 class MainActivity : ComponentActivity() {
 
@@ -80,6 +83,15 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        val crashFile = File(cacheDir, "crash_petpal.log")
+        if (crashFile.exists()) {
+            val content = crashFile.readText()
+            Log.e("PreviousCrash", content)
+            Toast.makeText(this, "CRASH PREVIO DETECTADO\n${content.take(300)}", Toast.LENGTH_LONG).show()
+            crashFile.delete()
+        }
+
         setContent {
             PetPalTheme {
                 Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
