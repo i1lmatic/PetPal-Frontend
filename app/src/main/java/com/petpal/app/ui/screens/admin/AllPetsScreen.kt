@@ -32,6 +32,8 @@ fun AllPetsScreen(
             modifier = Modifier.padding(horizontal = 20.dp, vertical = 12.dp)
         )
 
+        LaunchedEffect(Unit) { onLoad(search) }
+
         OutlinedTextField(
             value = search,
             onValueChange = { search = it; onLoad(it) },
