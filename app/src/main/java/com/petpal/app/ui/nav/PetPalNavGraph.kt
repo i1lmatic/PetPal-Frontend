@@ -284,7 +284,11 @@ fun PetPalNavGraph(
                     isLoading = adminState.isLoading,
                     error = adminState.error,
                     onLoad = { adminViewModel.loadPendingUsers() },
-                    onApprove = { adminViewModel.approveUser(it) }
+                    onApprove = { adminViewModel.approveUser(it) },
+                    onLogout = {
+                        authViewModel.logout()
+                        navController.navigate(Routes.LOGIN) { popUpTo(0) { inclusive = true } }
+                    }
                 )
             }
         }

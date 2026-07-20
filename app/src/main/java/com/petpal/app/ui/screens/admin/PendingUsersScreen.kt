@@ -20,7 +20,8 @@ fun PendingUsersScreen(
     isLoading: Boolean,
     error: String?,
     onLoad: () -> Unit,
-    onApprove: (Int) -> Unit
+    onApprove: (Int) -> Unit,
+    onLogout: () -> Unit
 ) {
     LaunchedEffect(Unit) { onLoad() }
 
@@ -92,6 +93,19 @@ fun PendingUsersScreen(
                                 Text("Aprobar", style = MaterialTheme.typography.labelMedium)
                             }
                         }
+                    }
+                }
+                item {
+                    Spacer(Modifier.height(8.dp))
+                    OutlinedButton(
+                        onClick = onLogout,
+                        modifier = Modifier.fillMaxWidth().height(48.dp),
+                        shape = MaterialTheme.shapes.medium,
+                        colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error)
+                    ) {
+                        Icon(Icons.Filled.Logout, null, modifier = Modifier.size(20.dp))
+                        Spacer(Modifier.width(8.dp))
+                        Text("Cerrar sesi\u00f3n")
                     }
                 }
             }
