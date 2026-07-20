@@ -157,7 +157,7 @@ fun AllAppointmentsScreen(
                                 }
                             }
 
-                            if (appt.status == "completed") {
+                            if (appt.status == "completed" && !appt.has_record) {
                                 Spacer(Modifier.height(12.dp))
                                 OutlinedButton(
                                     onClick = { onCreateRecord(appt) },

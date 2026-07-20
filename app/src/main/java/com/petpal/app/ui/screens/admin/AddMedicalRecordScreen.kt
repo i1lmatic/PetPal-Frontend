@@ -17,12 +17,13 @@ fun AddMedicalRecordScreen(
     pets: List<Pet>,
     isLoading: Boolean,
     error: String?,
-    onSave: (Int, String, String, String) -> Unit,
+    onSave: (Int, String, String, String, Int?) -> Unit,
     onBack: () -> Unit,
     onLoadPets: () -> Unit,
     onClearError: () -> Unit,
     preselectedPetId: Int? = null,
-    preselectedDiagnosis: String? = null
+    preselectedDiagnosis: String? = null,
+    appointmentId: Int? = null
 ) {
     var selectedPetId by remember { mutableStateOf(preselectedPetId) }
     var diagnosis by remember { mutableStateOf(preselectedDiagnosis ?: "") }

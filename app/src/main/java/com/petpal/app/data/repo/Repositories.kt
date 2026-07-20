@@ -79,10 +79,11 @@ class AdminRepository(private val api: PetPalApiService) {
         petId: Int,
         diagnosis: String,
         treatment: String,
-        notes: String
+        notes: String,
+        appointmentId: Int? = null
     ): Result<MedicalRecord> = runCatching {
         Result.Success(api.createMedicalRecord(
-            com.petpal.app.data.model.MedicalRecordCreate(petId, diagnosis, treatment, notes)
+            com.petpal.app.data.model.MedicalRecordCreate(petId, diagnosis, treatment, notes, appointmentId)
         ))
     }.getOrElse { e -> mapError(e) }
 

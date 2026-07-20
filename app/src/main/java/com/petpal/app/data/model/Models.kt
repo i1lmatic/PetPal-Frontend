@@ -49,7 +49,8 @@ data class Appointment(
     val reason: String,
     val status: String,
     val owner_name: String? = null,
-    val pet_name: String? = null
+    val pet_name: String? = null,
+    val has_record: Boolean = false
 )
 
 data class AppointmentCreate(
@@ -71,7 +72,8 @@ data class MedicalRecordCreate(
     val pet_id: Int,
     val diagnosis: String,
     val treatment: String,
-    val notes: String
+    val notes: String,
+    val appointment_id: Int? = null
 )
 
 data class AppointmentStatusUpdate(

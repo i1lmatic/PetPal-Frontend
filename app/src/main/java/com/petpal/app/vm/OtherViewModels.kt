@@ -139,10 +139,10 @@ class AddMedicalRecordViewModel(private val repository: AdminRepository) : ViewM
     private val _state = MutableStateFlow(MedicalRecordState())
     val state: StateFlow<MedicalRecordState> = _state.asStateFlow()
 
-    fun createRecord(petId: Int, diagnosis: String, treatment: String, notes: String) {
+    fun createRecord(petId: Int, diagnosis: String, treatment: String, notes: String, appointmentId: Int? = null) {
         viewModelScope.launch {
             _state.value = _state.value.copy(isLoading = true, error = null, created = false)
-            when (val result = repository.createMedicalRecord(petId, diagnosis, treatment, notes)) {
+            when (val result = repository.createMedicalRecord(petId, diagnosis, treatment, notes, appointmentId)) {
                 is Result.Success -> _state.value = _state.value.copy(isLoading = false, created = true)
                 is Result.Error -> _state.value = _state.value.copy(
                     isLoading = false, error = result.message
