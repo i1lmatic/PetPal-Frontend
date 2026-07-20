@@ -111,7 +111,7 @@ fun AddMedicalRecordScreen(
             OutlinedButton(onClick = onBack, modifier = Modifier.weight(1f).height(50.dp), shape = MaterialTheme.shapes.medium) { Text("Cancelar") }
             Button(
                 onClick = {
-                    if (selectedPetId != null) onSave(selectedPetId!!, diagnosis.trim(), treatment.trim(), notes.trim())
+                    if (selectedPetId != null) onSave(selectedPetId!!, diagnosis.trim(), treatment.trim(), notes.trim(), appointmentId)
                 },
                 enabled = selectedPetId != null && diagnosis.isNotBlank() && treatment.isNotBlank() && !isLoading,
                 modifier = Modifier.weight(1f).height(50.dp),

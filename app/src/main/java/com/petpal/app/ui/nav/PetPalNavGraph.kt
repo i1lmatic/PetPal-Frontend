@@ -37,7 +37,7 @@ object Routes {
     const val ADMIN_RECORDS = "admin_records"
     const val ADMIN_CLIENT_DETAIL = "admin_client_detail/{userId}"
     const val ADMIN_PET_HISTORY = "admin_pet_history/{petId}"
-    const val ADMIN_RECORDS_FROM_APPT = "admin_records?petId={petId}&diagnosis={diagnosis}"
+    const val ADMIN_RECORDS_FROM_APPT = "admin_records?petId={petId}&diagnosis={diagnosis}&appointmentId={appointmentId}"
 
     fun petDetail(petId: Int) = "pet_detail/$petId"
     fun clientDetail(userId: Int) = "admin_client_detail/$userId"
@@ -392,7 +392,7 @@ fun PetPalNavGraph(
                     onLoad = { adminViewModel.loadAllAppointments() },
                     onUpdateStatus = { id, status -> adminViewModel.updateAppointmentStatus(id, status) },
                     onCreateRecord = { appt ->
-                        navController.navigate("admin_records?petId=${appt.pet_id}&diagnosis=${URLEncoder.encode(appt.reason, "UTF-8")}")
+                        navController.navigate("admin_records?petId=${appt.pet_id}&diagnosis=${URLEncoder.encode(appt.reason, "UTF-8")}&appointmentId=${appt.id}")
                     }
                 )
             }
@@ -453,7 +453,7 @@ fun PetPalNavGraph(
                     pets = allPets,
                     isLoading = recState.isLoading,
                     error = recState.error,
-                    onSave = { petId, diag, treat, notes ->
+                    onSave = { petId, diag, treat, notes, _ ->
                         medicalRecordViewModel.createRecord(petId, diag, treat, notes)
                     },
                     onBack = { navController.popBackStack() },
@@ -481,11 +481,14 @@ fun PetPalNavGraph(
             Routes.ADMIN_RECORDS_FROM_APPT,
             arguments = listOf(
                 navArgument("petId") { type = NavType.IntType },
-                navArgument("diagnosis") { type = NavType.StringType; defaultValue = "" }
+                navArgument("diagnosis") { type = NavType.StringType; defaultValue = "" },
+                navArgument("appointmentId") { type = NavType.IntType; defaultValue = -1 }
             )
         ) { backStackEntry ->
             val petId = backStackEntry.arguments?.getInt("petId") ?: return@composable
             val diagnosis = backStackEntry.arguments?.getString("diagnosis") ?: ""
+            val appointmentId = backStackEntry.arguments?.getInt("appointmentId") ?: -1
+            val apptIdToPass = if (appointmentId > 0) appointmentId else null
             val recState = medicalRecordViewModel.state.collectAsState().value
             val allPets = allPetsViewModel.state.collectAsState().value.pets
             LaunchedEffect(Unit) { allPetsViewModel.load("") }
@@ -499,14 +502,15 @@ fun PetPalNavGraph(
                 pets = allPets,
                 isLoading = recState.isLoading,
                 error = recState.error,
-                onSave = { pid, diag, treat, notes ->
-                    medicalRecordViewModel.createRecord(pid, diag, treat, notes)
+                onSave = { pid, diag, treat, notes, _ ->
+                    medicalRecordViewModel.createRecord(pid, diag, treat, notes, apptIdToPass)
                 },
                 onBack = { navController.popBackStack() },
                 onLoadPets = { allPetsViewModel.load("") },
                 onClearError = { medicalRecordViewModel.clearError() },
                 preselectedPetId = petId,
-                preselectedDiagnosis = diagnosis
+                preselectedDiagnosis = diagnosis,
+                appointmentId = apptIdToPass
             )
         }
 
