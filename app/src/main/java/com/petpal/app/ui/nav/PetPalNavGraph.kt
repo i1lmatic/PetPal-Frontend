@@ -20,10 +20,13 @@ import com.petpal.app.vm.*
 import java.net.URLEncoder
 
 object Routes {
+    // --- Autenticación ---
     const val LOGIN = "login"
     const val REGISTER_OWNER = "register_owner"
     const val REGISTER_VET = "register_vet"
     const val PENDING = "pending"
+
+    // --- Módulo Cuidadores (Owner) ---
     const val PETS_LIST = "pets"
     const val ADD_PET = "add_pet"
     const val PET_DETAIL = "pet_detail/{petId}"
@@ -33,17 +36,23 @@ object Routes {
     const val APPOINTMENTS = "appointments"
     const val PROFILE = "profile"
     const val EDIT_PROFILE = "edit_profile"
+
+    // --- Módulo Veterinaria (Vet) ---
     const val VET_DASHBOARD = "vet_dashboard"
     const val VET_APPOINTMENTS = "vet_appointments"
     const val VET_PATIENTS = "vet_patients"
     const val VET_BUSINESS = "vet_business"
     const val VET_PROFILE = "vet_profile"
     const val VET_ADD_RECORD = "vet_add_record/{appointmentId}"
+
+    // --- Módulo Superusuario (Super) ---
     const val SUPER_DASHBOARD = "super_dashboard"
     const val SUPER_USERS = "super_users"
     const val SUPER_VETS = "super_vets"
     const val SUPER_APPOINTMENTS = "super_appointments"
     const val SUPER_CONFIG = "super_config"
+
+    // --- Módulo Administrador (Admin) ---
     const val ADMIN_DASHBOARD = "admin_dashboard"
     const val ADMIN_USERS = "admin_users"
     const val ADMIN_APPOINTMENTS = "admin_appointments"
@@ -53,6 +62,7 @@ object Routes {
     const val ADMIN_PET_HISTORY = "admin_pet_history/{petId}"
     const val ADMIN_RECORDS_FROM_APPT = "admin_records?petId={petId}&diagnosis={diagnosis}&appointmentId={appointmentId}"
 
+    // --- Helper functions para rutas dinámicas ---
     fun petDetail(petId: Int) = "pet_detail/$petId"
     fun vetDetail(vetId: Int) = "vet_detail/$vetId"
     fun bookAppointment(vetId: Int) = "book_appointment/$vetId"
@@ -102,6 +112,12 @@ fun PetPalNavGraph(
                 || route.toString().startsWith("book_appointment")
     }
 
+    val isVetScreen = { route: String? ->
+        route == Routes.VET_DASHBOARD || route == Routes.VET_APPOINTMENTS || route == Routes.VET_PATIENTS
+                || route == Routes.VET_BUSINESS || route == Routes.VET_PROFILE
+                || route.toString().startsWith("vet_add_record")
+    }
+
     val isSuperScreen = { route: String? ->
         route == Routes.SUPER_DASHBOARD || route == Routes.SUPER_USERS || route == Routes.SUPER_VETS
                 || route == Routes.SUPER_APPOINTMENTS || route == Routes.SUPER_CONFIG
@@ -119,11 +135,15 @@ fun PetPalNavGraph(
                 Log.d("PetPalFlow", "NAV: -> PENDING")
                 navController.navigate(Routes.PENDING) { popUpTo(0) { inclusive = true } }
             }
-            authState.isLoggedIn && authState.role == "admin" && !isSuperScreen(currentRoute) -> {
+            authState.isLoggedIn && (authState.role == "admin" || authState.role == "super") && !isSuperScreen(currentRoute) -> {
                 Log.d("PetPalFlow", "NAV: -> SUPER_DASHBOARD")
                 navController.navigate(Routes.SUPER_DASHBOARD) { popUpTo(0) { inclusive = true } }
             }
-            authState.isLoggedIn && authState.status == "active" && !isOwnerScreen(currentRoute) && !isSuperScreen(currentRoute) -> {
+            authState.isLoggedIn && authState.role == "vet" && !isVetScreen(currentRoute) -> {
+                Log.d("PetPalFlow", "NAV: -> VET_DASHBOARD")
+                navController.navigate(Routes.VET_DASHBOARD) { popUpTo(0) { inclusive = true } }
+            }
+            authState.isLoggedIn && (authState.role == "owner" || authState.role == "user" || authState.status == "active") && !isOwnerScreen(currentRoute) && !isSuperScreen(currentRoute) && !isVetScreen(currentRoute) -> {
                 Log.d("PetPalFlow", "NAV: -> PETS_LIST")
                 navController.navigate(Routes.PETS_LIST) { popUpTo(0) { inclusive = true } }
             }
@@ -173,20 +193,22 @@ fun PetPalNavGraph(
             )
         }
 
+        val ownerNavHandler: (String) -> Unit = { route ->
+            when (route) {
+                "pets" -> navController.navigate(Routes.PETS_LIST) { popUpTo(Routes.PETS_LIST) { inclusive = true } }
+                "search_vets" -> navController.navigate(Routes.SEARCH_VETS) { popUpTo(Routes.PETS_LIST) { inclusive = true } }
+                "appointments" -> navController.navigate(Routes.APPOINTMENTS) { popUpTo(Routes.PETS_LIST) { inclusive = true } }
+                "profile" -> navController.navigate(Routes.PROFILE) { popUpTo(Routes.PETS_LIST) { inclusive = true } }
+            }
+        }
+
         composable(Routes.PETS_LIST) {
             val petsState = petsViewModel.state.collectAsState().value
             ScreenWithBottomBar(
                 bottomBar = {
                     com.petpal.app.ui.components.OwnerBottomBar(
                         currentRoute = Routes.PETS_LIST,
-                        onNavigate = { route ->
-                            when (route) {
-                                "pets" -> navController.navigate(Routes.PETS_LIST) { popUpTo(Routes.PETS_LIST) { inclusive = true } }
-                                "search_vets" -> navController.navigate(Routes.SEARCH_VETS) { popUpTo(Routes.PETS_LIST) { inclusive = true } }
-                                "appointments" -> navController.navigate(Routes.APPOINTMENTS) { popUpTo(Routes.PETS_LIST) { inclusive = true } }
-                                "profile" -> navController.navigate(Routes.PROFILE) { popUpTo(Routes.PETS_LIST) { inclusive = true } }
-                            }
-                        }
+                        onNavigate = ownerNavHandler
                     )
                 }
             ) {
@@ -251,14 +273,7 @@ fun PetPalNavGraph(
                 bottomBar = {
                     com.petpal.app.ui.components.OwnerBottomBar(
                         currentRoute = Routes.SEARCH_VETS,
-                        onNavigate = { route ->
-                            when (route) {
-                                "pets" -> navController.navigate(Routes.PETS_LIST) { popUpTo(Routes.PETS_LIST) { inclusive = true } }
-                                "search_vets" -> navController.navigate(Routes.SEARCH_VETS) { popUpTo(Routes.PETS_LIST) { inclusive = true } }
-                                "appointments" -> navController.navigate(Routes.APPOINTMENTS) { popUpTo(Routes.PETS_LIST) { inclusive = true } }
-                                "profile" -> navController.navigate(Routes.PROFILE) { popUpTo(Routes.PETS_LIST) { inclusive = true } }
-                            }
-                        }
+                        onNavigate = ownerNavHandler
                     )
                 }
             ) {
@@ -322,14 +337,7 @@ fun PetPalNavGraph(
                 bottomBar = {
                     com.petpal.app.ui.components.OwnerBottomBar(
                         currentRoute = Routes.APPOINTMENTS,
-                        onNavigate = { route ->
-                            when (route) {
-                                "pets" -> navController.navigate(Routes.PETS_LIST) { popUpTo(Routes.PETS_LIST) { inclusive = true } }
-                                "search_vets" -> navController.navigate(Routes.SEARCH_VETS) { popUpTo(Routes.PETS_LIST) { inclusive = true } }
-                                "appointments" -> navController.navigate(Routes.APPOINTMENTS) { popUpTo(Routes.PETS_LIST) { inclusive = true } }
-                                "profile" -> navController.navigate(Routes.PROFILE) { popUpTo(Routes.PETS_LIST) { inclusive = true } }
-                            }
-                        }
+                        onNavigate = ownerNavHandler
                     )
                 }
             ) {
@@ -347,23 +355,13 @@ fun PetPalNavGraph(
                 bottomBar = {
                     com.petpal.app.ui.components.OwnerBottomBar(
                         currentRoute = Routes.PROFILE,
-                        onNavigate = { route ->
-                            when (route) {
-                                "pets" -> navController.navigate(Routes.PETS_LIST) { popUpTo(Routes.PETS_LIST) { inclusive = true } }
-                                "search_vets" -> navController.navigate(Routes.SEARCH_VETS) { popUpTo(Routes.PETS_LIST) { inclusive = true } }
-                                "appointments" -> navController.navigate(Routes.APPOINTMENTS) { popUpTo(Routes.PETS_LIST) { inclusive = true } }
-                                "profile" -> navController.navigate(Routes.PROFILE) { popUpTo(Routes.PETS_LIST) { inclusive = true } }
-                            }
-                        }
+                        onNavigate = ownerNavHandler
                     )
                 }
             ) {
                 com.petpal.app.ui.screens.owner.ProfileScreen(
                     user = authState.user,
-                    onLogout = {
-                        authViewModel.logout()
-                        navController.navigate(Routes.LOGIN) { popUpTo(0) { inclusive = true } }
-                    },
+                    onLogout = doLogout,
                     onEditProfile = { navController.navigate(Routes.EDIT_PROFILE) }
                 )
             }
@@ -393,13 +391,129 @@ fun PetPalNavGraph(
             navController.navigate(Routes.LOGIN) { popUpTo(0) { inclusive = true } }
         }
 
+        val vetNavHandler: (String) -> Unit = { route ->
+            when (route) {
+                "vet_dashboard" -> navController.navigate(Routes.VET_DASHBOARD) { popUpTo(Routes.VET_DASHBOARD) { inclusive = true } }
+                "vet_appointments" -> navController.navigate(Routes.VET_APPOINTMENTS) { popUpTo(Routes.VET_DASHBOARD) { inclusive = true } }
+                "vet_patients" -> navController.navigate(Routes.VET_PATIENTS) { popUpTo(Routes.VET_DASHBOARD) { inclusive = true } }
+                "vet_business" -> navController.navigate(Routes.VET_BUSINESS) { popUpTo(Routes.VET_DASHBOARD) { inclusive = true } }
+                "vet_profile" -> navController.navigate(Routes.VET_PROFILE) { popUpTo(Routes.VET_DASHBOARD) { inclusive = true } }
+            }
+        }
+
+        composable(Routes.VET_DASHBOARD) {
+            val vetDashVM: com.petpal.app.vm.VetDashboardViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
+            com.petpal.app.ui.screens.vet.VetDashboardScreen(
+                viewModel = vetDashVM,
+                onAppointmentClick = { appt ->
+                    // Navegación a la lista de citas o detalle
+                    navController.navigate(Routes.VET_APPOINTMENTS)
+                },
+                bottomBar = {
+                    com.petpal.app.ui.components.VetBottomBar(
+                        currentRoute = Routes.VET_DASHBOARD,
+                        onNavigate = vetNavHandler
+                    )
+                }
+            )
+        }
+
+        composable(Routes.VET_APPOINTMENTS) {
+            val vetApptVM: com.petpal.app.vm.VetAppointmentsViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
+            com.petpal.app.ui.screens.vet.VetAppointmentsScreen(
+                viewModel = vetApptVM,
+                onAppointmentClick = { appt ->
+                    if (appt.status.lowercase() == "completed") {
+                        navController.navigate(Routes.vetAddRecord(appt.id))
+                    }
+                },
+                bottomBar = {
+                    com.petpal.app.ui.components.VetBottomBar(
+                        currentRoute = Routes.VET_APPOINTMENTS,
+                        onNavigate = vetNavHandler
+                    )
+                }
+            )
+        }
+
+        composable(Routes.VET_PATIENTS) {
+            val vetPatientsVM: com.petpal.app.vm.VetPatientsViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
+            com.petpal.app.ui.screens.vet.VetPatientsScreen(
+                viewModel = vetPatientsVM,
+                onPetClick = { pet ->
+                    navController.navigate(Routes.petHistory(pet.id))
+                },
+                bottomBar = {
+                    com.petpal.app.ui.components.VetBottomBar(
+                        currentRoute = Routes.VET_PATIENTS,
+                        onNavigate = vetNavHandler
+                    )
+                }
+            )
+        }
+
+        composable(Routes.VET_BUSINESS) {
+            val vetBusinessVM: com.petpal.app.vm.VetBusinessViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
+            com.petpal.app.ui.screens.vet.VetBusinessScreen(
+                viewModel = vetBusinessVM,
+                bottomBar = {
+                    com.petpal.app.ui.components.VetBottomBar(
+                        currentRoute = Routes.VET_BUSINESS,
+                        onNavigate = vetNavHandler
+                    )
+                }
+            )
+        }
+
+        composable(Routes.VET_PROFILE) {
+            com.petpal.app.ui.screens.vet.VetProfileScreen(
+                user = authState.user,
+                onLogout = doLogout,
+                onEditProfile = { navController.navigate(Routes.EDIT_PROFILE) },
+                bottomBar = {
+                    com.petpal.app.ui.components.VetBottomBar(
+                        currentRoute = Routes.VET_PROFILE,
+                        onNavigate = vetNavHandler
+                    )
+                }
+            )
+        }
+
+        composable(
+            Routes.VET_ADD_RECORD,
+            arguments = listOf(navArgument("appointmentId") { type = NavType.IntType })
+        ) { backStackEntry ->
+            val appointmentId = backStackEntry.arguments?.getInt("appointmentId") ?: -1
+            val vetApptVM: com.petpal.app.vm.VetAppointmentsViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
+            val apptState = vetApptVM.state.collectAsState().value
+            val targetAppt = apptState.appointments.find { it.id == appointmentId }
+            val recState = medicalRecordViewModel.state.collectAsState().value
+
+            LaunchedEffect(recState.created) {
+                if (recState.created) {
+                    medicalRecordViewModel.onCreatedHandled()
+                    navController.popBackStack()
+                }
+            }
+
+            com.petpal.app.ui.screens.vet.AddMedicalRecordScreen(
+                appointment = targetAppt,
+                isLoading = recState.isLoading,
+                error = recState.error,
+                onSave = { petId, diag, treat, notes, apptId ->
+                    medicalRecordViewModel.createRecord(petId, diag, treat, notes, apptId)
+                },
+                onBack = { navController.popBackStack() }
+            )
+        }
+
         val superNavHandler: (String) -> Unit = { route ->
             when (route) {
                 "super_dashboard" -> navController.navigate(Routes.SUPER_DASHBOARD) { popUpTo(Routes.SUPER_DASHBOARD) { inclusive = true } }
                 "super_users" -> navController.navigate(Routes.SUPER_USERS) { popUpTo(Routes.SUPER_DASHBOARD) { inclusive = true } }
                 "super_vets" -> navController.navigate(Routes.SUPER_VETS) { popUpTo(Routes.SUPER_DASHBOARD) { inclusive = true } }
                 "super_appointments" -> navController.navigate(Routes.SUPER_APPOINTMENTS) { popUpTo(Routes.SUPER_DASHBOARD) { inclusive = true } }
-                "admin_pets" -> navController.navigate(Routes.ADMIN_PETS) { popUpTo(Routes.SUPER_DASHBOARD) { inclusive = true } }
+                "super_config" -> navController.navigate(Routes.SUPER_CONFIG) { popUpTo(Routes.SUPER_DASHBOARD) { inclusive = true } }
             }
         }
 
@@ -458,7 +572,11 @@ fun PetPalNavGraph(
         }
 
         composable(Routes.SUPER_CONFIG) {
-            SystemConfigScreen(onLogout = doLogout)
+            ScreenWithBottomBar(
+                bottomBar = { com.petpal.app.ui.components.SuperBottomBar(currentRoute = Routes.SUPER_CONFIG, onNavigate = superNavHandler, onLogout = doLogout) }
+            ) {
+                SystemConfigScreen(onLogout = doLogout)
+            }
         }
 
         composable(Routes.ADMIN_DASHBOARD) {

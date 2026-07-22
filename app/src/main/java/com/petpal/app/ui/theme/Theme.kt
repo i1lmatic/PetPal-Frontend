@@ -40,17 +40,48 @@ private val LightColorScheme = lightColorScheme(
     inversePrimary = Green80
 )
 
+private val DarkColorScheme = darkColorScheme(
+    primary = Green80,
+    onPrimary = Green20,
+    primaryContainer = Green30,
+    onPrimaryContainer = Green90,
+    secondary = Teal80,
+    onSecondary = Teal20,
+    secondaryContainer = Teal30,
+    onSecondaryContainer = Teal90,
+    tertiary = Green70,
+    onTertiary = Green10,
+    tertiaryContainer = Green20,
+    onTertiaryContainer = Green95,
+    error = Color(0xFFFFB4AB),
+    onError = Color(0xFF690005),
+    errorContainer = Color(0xFF93000A),
+    onErrorContainer = Color(0xFFFFDAD6),
+    background = Gray10,
+    onBackground = Gray90,
+    surface = Gray10,
+    onSurface = Gray90,
+    surfaceVariant = Gray30,
+    onSurfaceVariant = Gray80,
+    outline = Gray60,
+    outlineVariant = Gray40,
+    inverseSurface = Gray90,
+    inverseOnSurface = Gray10,
+    inversePrimary = Green40
+)
+
 @Composable
 fun PetPalTheme(
+    darkTheme: Boolean = isSystemInDarkTheme(),
     content: @Composable () -> Unit
 ) {
-    val colorScheme = LightColorScheme
+    val colorScheme = if (darkTheme) DarkColorScheme else LightColorScheme
     val view = LocalView.current
     if (!view.isInEditMode) {
         SideEffect {
             val window = (view.context as Activity).window
             window.statusBarColor = colorScheme.primary.toArgb()
-            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = false
+            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = !darkTheme
         }
     }
 
