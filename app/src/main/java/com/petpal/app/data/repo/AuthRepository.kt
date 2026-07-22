@@ -26,6 +26,16 @@ class AuthRepository(
         Result.Success(user)
     }.getOrElse { e -> mapError(e) }
 
+    suspend fun registerVet(
+        email: String,
+        password: String,
+        fullName: String,
+        phone: String
+    ): Result<User> = runCatching {
+        val user = api.registerVet(UserCreate(email, full_name = fullName, phone, password))
+        Result.Success(user)
+    }.getOrElse { e -> mapError(e) }
+
     suspend fun login(email: String, password: String): Result<TokenResponse> {
         Log.d("PetPalFlow", "REPO: api.login() iniciando")
         return runCatching {

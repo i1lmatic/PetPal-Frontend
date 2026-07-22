@@ -16,41 +16,14 @@ import androidx.compose.ui.unit.sp
 @Composable
 fun StatusBadge(status: String, modifier: Modifier = Modifier) {
     val (bgColor, textColor, label) = when (status.lowercase()) {
-        "pending" -> Triple(
-            Color(0xFFFFF3E0),
-            Color(0xFFE65100),
-            "Pendiente"
-        )
-        "active" -> Triple(
-            Color(0xFFE8F5E9),
-            Color(0xFF2E7D32),
-            "Activo"
-        )
-        "confirmed" -> Triple(
-            Color(0xFFE3F2FD),
-            Color(0xFF1565C0),
-            "Confirmada"
-        )
-        "completed" -> Triple(
-            Color(0xFFE8F5E9),
-            Color(0xFF2E7D32),
-            "Completada"
-        )
-        "cancelled" -> Triple(
-            Color(0xFFFFEBEE),
-            Color(0xFFC62828),
-            "Cancelada"
-        )
-        "inactive" -> Triple(
-            Color(0xFFF5F5F5),
-            Color(0xFF757575),
-            "Inactivo"
-        )
-        else -> Triple(
-            Color(0xFFF5F5F5),
-            Color(0xFF757575),
-            status
-        )
+        "pending" -> Triple(Color(0xFFFFF3E0), Color(0xFFE65100), "Pendiente")
+        "active" -> Triple(Color(0xFFE8F5E9), Color(0xFF2E7D32), "Activo")
+        "confirmed" -> Triple(Color(0xFFE3F2FD), Color(0xFF1565C0), "Confirmada")
+        "completed" -> Triple(Color(0xFFE8F5E9), Color(0xFF2E7D32), "Completada")
+        "cancelled" -> Triple(Color(0xFFFFEBEE), Color(0xFFC62828), "Cancelada")
+        "inactive" -> Triple(Color(0xFFF5F5F5), Color(0xFF757575), "Inactivo")
+        "rejected" -> Triple(Color(0xFFFFEBEE), Color(0xFFC62828), "Rechazada")
+        else -> Triple(Color(0xFFF5F5F5), Color(0xFF757575), status)
     }
 
     Box(

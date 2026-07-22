@@ -1,7 +1,6 @@
 package com.petpal.app.ui.screens.auth
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
@@ -19,21 +18,22 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 @Composable
-fun LoginScreen(
+fun RegisterVetScreen(
     isLoading: Boolean,
     error: String?,
-    onLogin: (String, String) -> Unit,
-    onNavigateToRegister: () -> Unit,
-    onNavigateToRegisterVet: () -> Unit,
+    onRegister: (email: String, password: String, fullName: String, phone: String) -> Unit,
+    onNavigateToLogin: () -> Unit,
     onClearError: () -> Unit
 ) {
+    var fullName by remember { mutableStateOf("") }
+    var phone by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    var confirmPassword by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
 
     Column(
@@ -52,25 +52,25 @@ fun LoginScreen(
                         )
                     )
                 )
-                .padding(horizontal = 24.dp, vertical = 48.dp)
+                .padding(horizontal = 24.dp, vertical = 36.dp)
         ) {
             Column {
                 Icon(
-                    imageVector = Icons.Filled.Pets,
+                    imageVector = Icons.Filled.LocalHospital,
                     contentDescription = null,
-                    modifier = Modifier.size(48.dp),
+                    modifier = Modifier.size(40.dp),
                     tint = Color.White
                 )
                 Spacer(modifier = Modifier.height(12.dp))
                 Text(
-                    text = "PetPal",
-                    fontSize = 32.sp,
+                    text = "Registro Veterinaria",
+                    fontSize = 28.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color.White
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = "Tu veterinaria de confianza",
+                    text = "Registra tu clínica veterinaria",
                     fontSize = 14.sp,
                     color = Color.White.copy(alpha = 0.8f)
                 )
@@ -83,7 +83,43 @@ fun LoginScreen(
                 .padding(24.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Spacer(modifier = Modifier.height(32.dp))
+            Text(
+                text = "Datos personales",
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            OutlinedTextField(
+                value = fullName,
+                onValueChange = { fullName = it; onClearError() },
+                label = { Text("Nombre completo") },
+                leadingIcon = { Icon(Icons.Filled.Person, "name") },
+                modifier = Modifier.fillMaxWidth(),
+                shape = MaterialTheme.shapes.medium,
+                singleLine = true,
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next)
+            )
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            OutlinedTextField(
+                value = phone,
+                onValueChange = { phone = it; onClearError() },
+                label = { Text("Teléfono") },
+                leadingIcon = { Icon(Icons.Filled.Phone, "phone") },
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Phone,
+                    imeAction = ImeAction.Next
+                ),
+                modifier = Modifier.fillMaxWidth(),
+                shape = MaterialTheme.shapes.medium,
+                singleLine = true
+            )
+
+            Spacer(modifier = Modifier.height(12.dp))
 
             OutlinedTextField(
                 value = email,
@@ -94,9 +130,9 @@ fun LoginScreen(
                     keyboardType = KeyboardType.Email,
                     imeAction = ImeAction.Next
                 ),
-                singleLine = true,
                 modifier = Modifier.fillMaxWidth(),
-                shape = MaterialTheme.shapes.medium
+                shape = MaterialTheme.shapes.medium,
+                singleLine = true
             )
 
             Spacer(modifier = Modifier.height(12.dp))
@@ -117,11 +153,45 @@ fun LoginScreen(
                 visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Password,
+                    imeAction = ImeAction.Next
+                ),
+                modifier = Modifier.fillMaxWidth(),
+                shape = MaterialTheme.shapes.medium,
+                singleLine = true
+            )
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            OutlinedTextField(
+                value = confirmPassword,
+                onValueChange = { confirmPassword = it; onClearError() },
+                label = { Text("Confirmar contraseña") },
+                leadingIcon = { Icon(Icons.Filled.Lock, "confirm") },
+                visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Password,
                     imeAction = ImeAction.Done
                 ),
-                singleLine = true,
                 modifier = Modifier.fillMaxWidth(),
-                shape = MaterialTheme.shapes.medium
+                shape = MaterialTheme.shapes.medium,
+                isError = confirmPassword.isNotEmpty() && password != confirmPassword,
+                supportingText = if (confirmPassword.isNotEmpty() && password != confirmPassword) {
+                    { Text("Las contraseñas no coinciden") }
+                } else null,
+                singleLine = true
+            )
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            HorizontalDivider()
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Text(
+                text = "Nota: Después del registro, el superusuario revisará tu solicitud. Una vez aprobada, podrás crear tu negocio veterinaria.",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.fillMaxWidth()
             )
 
             if (error != null) {
@@ -136,8 +206,11 @@ fun LoginScreen(
             Spacer(modifier = Modifier.height(24.dp))
 
             Button(
-                onClick = { onLogin(email.trim(), password) },
-                enabled = email.isNotBlank() && password.isNotBlank() && !isLoading,
+                onClick = {
+                    onRegister(email.trim(), password, fullName.trim(), phone.trim())
+                },
+                enabled = fullName.isNotBlank() && phone.isNotBlank() && email.isNotBlank()
+                        && password.isNotBlank() && password == confirmPassword && !isLoading,
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(50.dp),
@@ -150,59 +223,20 @@ fun LoginScreen(
                         strokeWidth = 2.dp
                     )
                 } else {
-                    Text("Iniciar sesión", style = MaterialTheme.typography.labelLarge)
+                    Text("Registrarse", style = MaterialTheme.typography.labelLarge)
                 }
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
-            HorizontalDivider()
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            Text(
-                text = "¿No tienes cuenta?",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            OutlinedButton(
-                onClick = onNavigateToRegister,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(50.dp),
-                shape = MaterialTheme.shapes.medium
+            TextButton(
+                onClick = onNavigateToLogin,
+                modifier = Modifier.align(Alignment.CenterHorizontally)
             ) {
-                Icon(
-                    imageVector = Icons.Filled.Person,
-                    contentDescription = null,
-                    modifier = Modifier.size(20.dp)
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text("Registrarse como Dueño")
+                Text("¿Ya tienes cuenta? Inicia sesión")
             }
 
-            Spacer(modifier = Modifier.height(8.dp))
-
-            OutlinedButton(
-                onClick = onNavigateToRegisterVet,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(50.dp),
-                shape = MaterialTheme.shapes.medium
-            ) {
-                Icon(
-                    imageVector = Icons.Filled.LocalHospital,
-                    contentDescription = null,
-                    modifier = Modifier.size(20.dp)
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text("Registrarse como Veterinaria")
-            }
-
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(16.dp))
         }
     }
 }

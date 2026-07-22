@@ -9,28 +9,42 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 
-enum class BottomNavItem(
+enum class OwnerNavItem(
     val label: String,
     val selectedIcon: ImageVector,
     val unselectedIcon: ImageVector,
     val route: String
 ) {
     Pets("Mascotas", Icons.Filled.Pets, Icons.Outlined.Pets, "pets"),
+    SearchVet("Buscar Vet", Icons.Filled.Search, Icons.Outlined.Search, "search_vets"),
     Appointments("Citas", Icons.Filled.CalendarMonth, Icons.Outlined.CalendarMonth, "appointments"),
     Profile("Perfil", Icons.Filled.Person, Icons.Outlined.Person, "profile")
 }
 
-enum class AdminNavItem(
+enum class VetNavItem(
     val label: String,
     val selectedIcon: ImageVector,
     val unselectedIcon: ImageVector,
     val route: String
 ) {
-    Dashboard("Inicio", Icons.Filled.Dashboard, Icons.Outlined.Dashboard, "admin_dashboard"),
-    Users("Usuarios", Icons.Filled.Group, Icons.Outlined.Group, "admin_users"),
-    Appointments("Citas", Icons.Filled.CalendarMonth, Icons.Outlined.CalendarMonth, "admin_appointments"),
-    Pets("Mascotas", Icons.Filled.Pets, Icons.Outlined.Pets, "admin_pets"),
-    Leave("Salir", Icons.Filled.Logout, Icons.Outlined.Logout, "salir")
+    Dashboard("Inicio", Icons.Filled.Dashboard, Icons.Outlined.Dashboard, "vet_dashboard"),
+    Appointments("Citas", Icons.Filled.CalendarMonth, Icons.Outlined.CalendarMonth, "vet_appointments"),
+    Patients("Pacientes", Icons.Filled.Pets, Icons.Outlined.Pets, "vet_patients"),
+    Business("Negocio", Icons.Filled.Business, Icons.Outlined.Business, "vet_business"),
+    Profile("Perfil", Icons.Filled.Person, Icons.Outlined.Person, "vet_profile")
+}
+
+enum class SuperNavItem(
+    val label: String,
+    val selectedIcon: ImageVector,
+    val unselectedIcon: ImageVector,
+    val route: String
+) {
+    Dashboard("Dashboard", Icons.Filled.Dashboard, Icons.Outlined.Dashboard, "super_dashboard"),
+    Users("Usuarios", Icons.Filled.Group, Icons.Outlined.Group, "super_users"),
+    Vets("Vets", Icons.Filled.LocalHospital, Icons.Outlined.LocalHospital, "super_vets"),
+    Appointments("Citas", Icons.Filled.CalendarMonth, Icons.Outlined.CalendarMonth, "super_appointments"),
+    Config("Config", Icons.Filled.Settings, Icons.Outlined.Settings, "super_config")
 }
 
 @Composable
@@ -42,7 +56,7 @@ fun OwnerBottomBar(
         containerColor = MaterialTheme.colorScheme.surface,
         tonalElevation = 2.dp
     ) {
-        BottomNavItem.entries.forEach { item ->
+        OwnerNavItem.entries.forEach { item ->
             val selected = currentRoute == item.route
             NavigationBarItem(
                 selected = selected,
@@ -65,6 +79,49 @@ fun OwnerBottomBar(
 }
 
 @Composable
+fun VetBottomBar(
+    currentRoute: String?,
+    onNavigate: (String) -> Unit
+) {
+    NavigationBar(
+        containerColor = MaterialTheme.colorScheme.surface,
+        tonalElevation = 2.dp
+    ) {
+        VetNavItem.entries.forEach { item ->
+            val selected = currentRoute == item.route
+            NavigationBarItem(
+                selected = selected,
+                onClick = { onNavigate(item.route) },
+                icon = {
+                    Icon(
+                        imageVector = if (selected) item.selectedIcon else item.unselectedIcon,
+                        contentDescription = item.label
+                    )
+                },
+                label = { Text(item.label) },
+                colors = NavigationBarItemDefaults.colors(
+                    selectedIconColor = MaterialTheme.colorScheme.primary,
+                    selectedTextColor = MaterialTheme.colorScheme.primary,
+                    indicatorColor = MaterialTheme.colorScheme.primaryContainer
+                )
+            )
+        }
+    }
+}
+
+enum class AdminNavItem(
+    val label: String,
+    val selectedIcon: ImageVector,
+    val unselectedIcon: ImageVector,
+    val route: String
+) {
+    Dashboard("Dashboard", Icons.Filled.Dashboard, Icons.Outlined.Dashboard, "admin_dashboard"),
+    Users("Usuarios", Icons.Filled.Group, Icons.Outlined.Group, "admin_users"),
+    Appointments("Citas", Icons.Filled.CalendarMonth, Icons.Outlined.CalendarMonth, "admin_appointments"),
+    Pets("Mascotas", Icons.Filled.Pets, Icons.Outlined.Pets, "admin_pets")
+}
+
+@Composable
 fun AdminBottomBar(
     currentRoute: String?,
     onNavigate: (String) -> Unit,
@@ -75,26 +132,57 @@ fun AdminBottomBar(
         tonalElevation = 2.dp
     ) {
         AdminNavItem.entries.forEach { item ->
-            val isLeave = item.route == "salir"
-            val selected = currentRoute == item.route && !isLeave
+            val selected = currentRoute == item.route
             NavigationBarItem(
                 selected = selected,
-                onClick = {
-                    if (isLeave) onLogout()
-                    else onNavigate(item.route)
-                },
+                onClick = { onNavigate(item.route) },
                 icon = {
                     Icon(
-                        imageVector = if (isLeave) item.unselectedIcon else
-                            if (selected) item.selectedIcon else item.unselectedIcon,
+                        imageVector = if (selected) item.selectedIcon else item.unselectedIcon,
                         contentDescription = item.label
                     )
                 },
                 label = { Text(item.label) },
                 colors = NavigationBarItemDefaults.colors(
-                    selectedIconColor = if (isLeave) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary,
-                    selectedTextColor = if (isLeave) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary,
-                    indicatorColor = if (isLeave) MaterialTheme.colorScheme.errorContainer else MaterialTheme.colorScheme.primaryContainer
+                    selectedIconColor = MaterialTheme.colorScheme.primary,
+                    selectedTextColor = MaterialTheme.colorScheme.primary,
+                    indicatorColor = MaterialTheme.colorScheme.primaryContainer
+                )
+            )
+        }
+    }
+}
+
+@Composable
+fun SuperBottomBar(
+    currentRoute: String?,
+    onNavigate: (String) -> Unit,
+    onLogout: () -> Unit
+) {
+    NavigationBar(
+        containerColor = MaterialTheme.colorScheme.surface,
+        tonalElevation = 2.dp
+    ) {
+        SuperNavItem.entries.forEach { item ->
+            val isLogout = item.route == "super_config"
+            val selected = currentRoute == item.route && !isLogout
+            NavigationBarItem(
+                selected = selected,
+                onClick = {
+                    if (isLogout) onLogout()
+                    else onNavigate(item.route)
+                },
+                icon = {
+                    Icon(
+                        imageVector = if (selected) item.selectedIcon else item.unselectedIcon,
+                        contentDescription = item.label
+                    )
+                },
+                label = { Text(item.label) },
+                colors = NavigationBarItemDefaults.colors(
+                    selectedIconColor = MaterialTheme.colorScheme.primary,
+                    selectedTextColor = MaterialTheme.colorScheme.primary,
+                    indicatorColor = MaterialTheme.colorScheme.primaryContainer
                 )
             )
         }

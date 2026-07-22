@@ -9,6 +9,9 @@ interface PetPalApiService {
     @POST("auth/register")
     suspend fun register(@Body user: UserCreate): User
 
+    @POST("auth/register-vet")
+    suspend fun registerVet(@Body user: UserCreate): User
+
     @FormUrlEncoded
     @POST("auth/login")
     suspend fun login(
@@ -28,6 +31,9 @@ interface PetPalApiService {
     @POST("pets/")
     suspend fun createPet(@Body pet: PetCreate): Pet
 
+    @PATCH("pets/{id}")
+    suspend fun updatePet(@Path("id") petId: Int, @Body pet: PetUpdate): Pet
+
     @GET("pets/{id}/history")
     suspend fun getPetHistory(@Path("id") petId: Int): List<MedicalRecord>
 
@@ -37,6 +43,39 @@ interface PetPalApiService {
     @POST("appointments/")
     suspend fun createAppointment(@Body appointment: AppointmentCreate): Appointment
 
+    @GET("vets/search")
+    suspend fun searchVets(@Query("q") query: String = ""): List<Veterinary>
+
+    @GET("vets/{id}")
+    suspend fun getVetDetail(@Path("id") vetId: Int): Veterinary
+
+    @GET("vet/business")
+    suspend fun getMyVetBusiness(): Veterinary
+
+    @POST("vet/business")
+    suspend fun createVetBusiness(@Body business: VeterinaryCreate): Veterinary
+
+    @PATCH("vet/business")
+    suspend fun updateVetBusiness(@Body update: VeterinaryUpdate): Veterinary
+
+    @GET("vet/appointments")
+    suspend fun getVetAppointments(): List<Appointment>
+
+    @PATCH("vet/appointments/{id}/accept")
+    suspend fun acceptVetAppointment(@Path("id") appointmentId: Int): Appointment
+
+    @PATCH("vet/appointments/{id}/reject")
+    suspend fun rejectVetAppointment(@Path("id") appointmentId: Int): Appointment
+
+    @PATCH("vet/appointments/{id}/complete")
+    suspend fun completeVetAppointment(@Path("id") appointmentId: Int): Appointment
+
+    @GET("vet/patients")
+    suspend fun getVetPatients(): List<Pet>
+
+    @POST("vet/medical-records")
+    suspend fun createVetMedicalRecord(@Body record: VetMedicalRecordCreate): MedicalRecord
+
     @GET("admin/users/pending")
     suspend fun getPendingUsers(): List<User>
 
@@ -45,6 +84,12 @@ interface PetPalApiService {
 
     @DELETE("admin/users/{id}/reject")
     suspend fun rejectUser(@Path("id") userId: Int): User
+
+    @PATCH("admin/users/{id}/deactivate")
+    suspend fun deactivateUser(@Path("id") userId: Int): User
+
+    @PATCH("admin/users/{id}/reactivate")
+    suspend fun reactivateUser(@Path("id") userId: Int): User
 
     @GET("admin/users/active")
     suspend fun getActiveUsers(): List<User>
@@ -69,4 +114,13 @@ interface PetPalApiService {
         @Path("id") appointmentId: Int,
         @Body status: AppointmentStatusUpdate
     ): Appointment
+
+    @GET("admin/vets")
+    suspend fun getAdminVets(): List<Veterinary>
+
+    @PATCH("admin/vets/{id}/deactivate")
+    suspend fun deactivateVet(@Path("id") vetId: Int): Veterinary
+
+    @PATCH("admin/vets/{id}/reactivate")
+    suspend fun reactivateVet(@Path("id") vetId: Int): Veterinary
 }

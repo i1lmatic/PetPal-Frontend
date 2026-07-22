@@ -92,6 +92,20 @@ class AuthViewModel(
         }
     }
 
+    fun registerVet(email: String, password: String, fullName: String, phone: String) {
+        viewModelScope.launch {
+            _state.value = _state.value.copy(isLoading = true, error = null)
+            when (val result = repository.registerVet(email, password, fullName, phone)) {
+                is Result.Success -> {
+                    _state.value = _state.value.copy(isLoading = false, isPending = true)
+                }
+                is Result.Error -> {
+                    _state.value = _state.value.copy(isLoading = false, error = result.message)
+                }
+            }
+        }
+    }
+
     fun loadProfile() {
         Log.d("PetPalFlow", "VM: loadProfile() iniciado")
         viewModelScope.launch {

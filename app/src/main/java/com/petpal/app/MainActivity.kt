@@ -131,6 +131,36 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    private val vetSearchViewModel: VetSearchViewModel by viewModels {
+        val repo = VetRepository(app.apiService)
+        object : androidx.lifecycle.ViewModelProvider.Factory {
+            @Suppress("UNCHECKED_CAST")
+            override fun <T : androidx.lifecycle.ViewModel> create(modelClass: Class<T>): T {
+                return VetSearchViewModel(repo) as T
+            }
+        }
+    }
+
+    private val manageUsersViewModel: ManageUsersViewModel by viewModels {
+        val repo = AdminRepository(app.apiService)
+        object : androidx.lifecycle.ViewModelProvider.Factory {
+            @Suppress("UNCHECKED_CAST")
+            override fun <T : androidx.lifecycle.ViewModel> create(modelClass: Class<T>): T {
+                return ManageUsersViewModel(repo) as T
+            }
+        }
+    }
+
+    private val manageVetsViewModel: ManageVetsViewModel by viewModels {
+        val repo = AdminRepository(app.apiService)
+        object : androidx.lifecycle.ViewModelProvider.Factory {
+            @Suppress("UNCHECKED_CAST")
+            override fun <T : androidx.lifecycle.ViewModel> create(modelClass: Class<T>): T {
+                return ManageVetsViewModel(repo) as T
+            }
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -149,13 +179,16 @@ class MainActivity : ComponentActivity() {
                         petsViewModel = petsViewModel,
                         appointmentsViewModel = appointmentsViewModel,
                         petDetailViewModel = petDetailViewModel,
+                        vetSearchViewModel = vetSearchViewModel,
                         adminViewModel = adminViewModel,
                         medicalRecordViewModel = medicalRecordViewModel,
                         dashboardViewModel = dashboardViewModel,
                         allPetsViewModel = allPetsViewModel,
                         activeUsersViewModel = activeUsersViewModel,
                         clientDetailViewModel = clientDetailViewModel,
-                        editProfileViewModel = editProfileViewModel
+                        editProfileViewModel = editProfileViewModel,
+                        manageUsersViewModel = manageUsersViewModel,
+                        manageVetsViewModel = manageVetsViewModel
                     )
                 }
             }

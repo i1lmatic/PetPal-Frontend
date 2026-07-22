@@ -2,11 +2,11 @@ package com.petpal.app.vm
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.petpal.app.data.model.Appointment
-import com.petpal.app.data.model.Pet
+import com.petpal.app.data.model.*
 import com.petpal.app.data.repo.AppointmentRepository
 import com.petpal.app.data.repo.PetRepository
 import com.petpal.app.data.repo.Result
+import com.petpal.app.data.repo.VetRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -28,38 +28,27 @@ class PetsViewModel(private val repository: PetRepository) : ViewModel() {
         viewModelScope.launch {
             _state.value = _state.value.copy(isLoading = true, error = null)
             when (val result = repository.getMyPets()) {
-                is Result.Success -> _state.value = _state.value.copy(
-                    isLoading = false, pets = result.data
-                )
-                is Result.Error -> _state.value = _state.value.copy(
-                    isLoading = false, error = result.message
-                )
+                is Result.Success -> _state.value = _state.value.copy(isLoading = false, pets = result.data)
+                is Result.Error -> _state.value = _state.value.copy(isLoading = false, error = result.message)
             }
         }
     }
 
-    fun createPet(name: String, species: String, breed: String, birthDate: String, weight: Double) {
+    fun createPet(pet: PetCreate) {
         viewModelScope.launch {
             _state.value = _state.value.copy(isLoading = true, error = null, petCreated = false)
-            when (val result = repository.createPet(name, species, breed, birthDate, weight)) {
+            when (val result = repository.createPet(pet)) {
                 is Result.Success -> {
                     _state.value = _state.value.copy(isLoading = false, petCreated = true)
                     loadPets()
                 }
-                is Result.Error -> _state.value = _state.value.copy(
-                    isLoading = false, error = result.message
-                )
+                is Result.Error -> _state.value = _state.value.copy(isLoading = false, error = result.message)
             }
         }
     }
 
-    fun clearError() {
-        _state.value = _state.value.copy(error = null)
-    }
-
-    fun onPetCreatedHandled() {
-        _state.value = _state.value.copy(petCreated = false)
-    }
+    fun clearError() { _state.value = _state.value.copy(error = null) }
+    fun onPetCreatedHandled() { _state.value = _state.value.copy(petCreated = false) }
 }
 
 data class AppointmentsState(
@@ -78,36 +67,50 @@ class AppointmentsViewModel(private val repository: AppointmentRepository) : Vie
         viewModelScope.launch {
             _state.value = _state.value.copy(isLoading = true, error = null)
             when (val result = repository.getMyAppointments()) {
-                is Result.Success -> _state.value = _state.value.copy(
-                    isLoading = false, appointments = result.data
-                )
-                is Result.Error -> _state.value = _state.value.copy(
-                    isLoading = false, error = result.message
-                )
+                is Result.Success -> _state.value = _state.value.copy(isLoading = false, appointments = result.data)
+                is Result.Error -> _state.value = _state.value.copy(isLoading = false, error = result.message)
             }
         }
     }
 
-    fun createAppointment(petId: Int, dateTime: String, reason: String) {
+    fun createAppointment(appointment: AppointmentCreate) {
         viewModelScope.launch {
             _state.value = _state.value.copy(isLoading = true, error = null, created = false)
-            when (val result = repository.createAppointment(petId, dateTime, reason)) {
+            when (val result = repository.createAppointment(appointment)) {
                 is Result.Success -> {
                     _state.value = _state.value.copy(isLoading = false, created = true)
                     loadAppointments()
                 }
-                is Result.Error -> _state.value = _state.value.copy(
-                    isLoading = false, error = result.message
-                )
+                is Result.Error -> _state.value = _state.value.copy(isLoading = false, error = result.message)
             }
         }
     }
 
-    fun clearError() {
-        _state.value = _state.value.copy(error = null)
+    fun clearError() { _state.value = _state.value.copy(error = null) }
+    fun onCreatedHandled() { _state.value = _state.value.copy(created = false) }
+}
+
+data class VetSearchState(
+    val isLoading: Boolean = false,
+    val vets: List<Veterinary> = emptyList(),
+    val query: String = "",
+    val error: String? = null
+)
+
+class VetSearchViewModel(private val repository: VetRepository) : ViewModel() {
+
+    private val _state = MutableStateFlow(VetSearchState())
+    val state: StateFlow<VetSearchState> = _state.asStateFlow()
+
+    fun searchVets(query: String = "") {
+        viewModelScope.launch {
+            _state.value = _state.value.copy(isLoading = true, error = null, query = query)
+            when (val result = repository.searchVets(query)) {
+                is Result.Success -> _state.value = _state.value.copy(isLoading = false, vets = result.data)
+                is Result.Error -> _state.value = _state.value.copy(isLoading = false, error = result.message)
+            }
+        }
     }
 
-    fun onCreatedHandled() {
-        _state.value = _state.value.copy(created = false)
-    }
+    fun clearError() { _state.value = _state.value.copy(error = null) }
 }
