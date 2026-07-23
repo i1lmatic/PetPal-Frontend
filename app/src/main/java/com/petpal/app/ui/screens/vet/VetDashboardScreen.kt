@@ -65,7 +65,7 @@ fun VetDashboardScreen(
                         color = MaterialTheme.colorScheme.onBackground
                     )
                     Text(
-                        text = "Para comenzar, primero registra tu negocio veterinario.",
+                        text = "Tu cuenta está activa pero aún no tienes un negocio registrado.\nCompleta los datos para que los clientes puedan encontrarte.",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )

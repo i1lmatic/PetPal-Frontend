@@ -55,8 +55,8 @@ fun VetBusinessScreen(
             ) {
                 // 1. Header con gradiente verde
                 GradientHeader(
-                    title = "Mi Negocio",
-                    subtitle = "Configuración y datos de la clínica"
+                    title = if (state.hasBusiness) "Mi Negocio" else "Registrar Negocio",
+                    subtitle = if (state.hasBusiness) "Configuración y datos de la clínica" else "Completa los datos de tu veterinaria"
                 )
 
                 Column(
@@ -170,27 +170,29 @@ fun VetBusinessScreen(
                         Icon(Icons.Default.Save, contentDescription = null)
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
-                            text = "Guardar Cambios",
+                            text = if (state.hasBusiness) "Guardar Cambios" else "Crear Negocio",
                             fontWeight = FontWeight.Bold
                         )
                     }
 
-                    // Botón Desactivar Negocio
-                    OutlinedButton(
-                        onClick = { showDeactivateDialog = true },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(50.dp),
-                        colors = ButtonDefaults.outlinedButtonColors(
-                            contentColor = MaterialTheme.colorScheme.error
-                        )
-                    ) {
-                        Icon(Icons.Default.Warning, contentDescription = null)
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(
-                            text = "Desactivar Negocio",
-                            fontWeight = FontWeight.Bold
-                        )
+                    // Botón Desactivar Negocio (solo si ya existe el negocio)
+                    if (state.hasBusiness) {
+                        OutlinedButton(
+                            onClick = { showDeactivateDialog = true },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(50.dp),
+                            colors = ButtonDefaults.outlinedButtonColors(
+                                contentColor = MaterialTheme.colorScheme.error
+                            )
+                        ) {
+                            Icon(Icons.Default.Warning, contentDescription = null)
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(
+                                text = "Desactivar Negocio",
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
                     }
                 }
             }
