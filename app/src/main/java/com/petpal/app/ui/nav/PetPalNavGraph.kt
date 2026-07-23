@@ -17,6 +17,11 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.petpal.app.vm.*
+import com.petpal.app.ui.screens.superadmin.SuperDashboardScreen
+import com.petpal.app.ui.screens.superadmin.ManageUsersScreen
+import com.petpal.app.ui.screens.superadmin.ManageVetsScreen
+import com.petpal.app.ui.screens.superadmin.SuperAllAppointmentsScreen
+import com.petpal.app.ui.screens.superadmin.SystemConfigScreen
 import java.net.URLEncoder
 
 object Routes {
@@ -266,7 +271,7 @@ fun PetPalNavGraph(
                     records = detailState.records,
                     isLoading = detailState.isLoading,
                     error = detailState.error,
-                    onLoadHistory = { petDetailViewModel.loadHistory(it) },
+                    onLoadHistory = { petDetailViewModel.loadHistory(petId) },
                     onBack = { navController.popBackStack() }
                 )
             }
@@ -522,7 +527,7 @@ fun PetPalNavGraph(
             ScreenWithBottomBar(
                 bottomBar = { com.petpal.app.ui.components.SuperBottomBar(currentRoute = Routes.SUPER_DASHBOARD, onNavigate = superNavHandler, onLogout = doLogout) }
             ) {
-                com.petpal.app.ui.screens.super.SuperDashboardScreen(
+                SuperDashboardScreen(
                     stats = dashState.stats, isLoading = dashState.isLoading, error = dashState.error,
                     onLoad = { dashboardViewModel.load() }, onNavigate = { r -> navController.navigate(r) }
                 )
@@ -534,7 +539,7 @@ fun PetPalNavGraph(
             ScreenWithBottomBar(
                 bottomBar = { com.petpal.app.ui.components.SuperBottomBar(currentRoute = Routes.SUPER_USERS, onNavigate = superNavHandler, onLogout = doLogout) }
             ) {
-                com.petpal.app.ui.screens.super.ManageUsersScreen(
+                ManageUsersScreen(
                     pendingUsers = state.pendingUsers, activeUsers = state.activeUsers,
                     isLoading = state.isLoading, error = state.error,
                     onLoadPending = { manageUsersViewModel.loadPending() }, onLoadActive = { manageUsersViewModel.loadActive() },
@@ -550,7 +555,7 @@ fun PetPalNavGraph(
             ScreenWithBottomBar(
                 bottomBar = { com.petpal.app.ui.components.SuperBottomBar(currentRoute = Routes.SUPER_VETS, onNavigate = superNavHandler, onLogout = doLogout) }
             ) {
-                com.petpal.app.ui.screens.super.ManageVetsScreen(
+                ManageVetsScreen(
                     vets = state.vets, isLoading = state.isLoading, error = state.error,
                     onLoad = { manageVetsViewModel.load() },
                     onDeactivate = { manageVetsViewModel.deactivate(it) }, onReactivate = { manageVetsViewModel.reactivate(it) }
@@ -563,7 +568,7 @@ fun PetPalNavGraph(
             ScreenWithBottomBar(
                 bottomBar = { com.petpal.app.ui.components.SuperBottomBar(currentRoute = Routes.SUPER_APPOINTMENTS, onNavigate = superNavHandler, onLogout = doLogout) }
             ) {
-                com.petpal.app.ui.screens.super.SuperAllAppointmentsScreen(
+                SuperAllAppointmentsScreen(
                     appointments = adminState.allAppointments, isLoading = adminState.isLoading, error = adminState.error,
                     onLoad = { adminViewModel.loadAllAppointments() },
                     onUpdateStatus = { id, status -> adminViewModel.updateAppointmentStatus(id, status) }
@@ -744,7 +749,7 @@ fun PetPalNavGraph(
                 user = detailState.user,
                 isLoading = detailState.isLoading,
                 error = detailState.error,
-                onLoad = { clientDetailViewModel.load(it) },
+                onLoad = { clientDetailViewModel.load(userId) },
                 onBack = { navController.popBackStack() },
                 onPetClick = { pet -> navController.navigate(Routes.petHistory(pet.id)) },
                 userId = userId
@@ -799,7 +804,7 @@ fun PetPalNavGraph(
                     records = detailState.records,
                     isLoading = detailState.isLoading,
                     error = detailState.error,
-                    onLoadHistory = { petDetailViewModel.loadHistory(it) },
+                    onLoadHistory = { petDetailViewModel.loadHistory(petId) },
                     onBack = { navController.popBackStack() }
                 )
             }

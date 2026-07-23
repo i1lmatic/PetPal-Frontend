@@ -1,4 +1,4 @@
-package com.petpal.app.ui.screens.super
+package com.petpal.app.ui.screens.superadmin
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
