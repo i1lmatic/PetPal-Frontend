@@ -81,6 +81,16 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    private val vetMedicalRecordViewModel: VetAddMedicalRecordViewModel by viewModels {
+        val repo = VetRepository(app.apiService)
+        object : androidx.lifecycle.ViewModelProvider.Factory {
+            @Suppress("UNCHECKED_CAST")
+            override fun <T : androidx.lifecycle.ViewModel> create(modelClass: Class<T>): T {
+                return VetAddMedicalRecordViewModel(repo) as T
+            }
+        }
+    }
+
     private val dashboardViewModel: DashboardViewModel by viewModels {
         val repo = AdminRepository(app.apiService)
         object : androidx.lifecycle.ViewModelProvider.Factory {
@@ -232,7 +242,8 @@ class MainActivity : ComponentActivity() {
                         vetDashboardViewModel = vetDashboardViewModel,
                         vetAppointmentsViewModel = vetAppointmentsViewModel,
                         vetPatientsViewModel = vetPatientsViewModel,
-                        vetBusinessViewModel = vetBusinessViewModel
+                        vetBusinessViewModel = vetBusinessViewModel,
+                        vetMedicalRecordViewModel = vetMedicalRecordViewModel
                     )
                 }
             }

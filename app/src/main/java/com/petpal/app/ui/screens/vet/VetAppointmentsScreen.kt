@@ -30,6 +30,14 @@ fun VetAppointmentsScreen(
     bottomBar: @Composable () -> Unit = {}
 ) {
     val state by viewModel.state.collectAsState()
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    LaunchedEffect(state.actionError) {
+        state.actionError?.let {
+            snackbarHostState.showSnackbar(it)
+            viewModel.clearActionError()
+        }
+    }
 
     val filteredAppointments = state.appointments.filter { appt ->
         when (state.selectedTab) {
@@ -42,11 +50,12 @@ fun VetAppointmentsScreen(
 
     Scaffold(
         bottomBar = bottomBar,
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         containerColor = MaterialTheme.colorScheme.background
     ) { padding ->
         if (state.isLoading) {
             LoadingView(message = "Cargando citas...")
-        } else if (state.error != null) {
+        } else if (state.error != null && state.appointments.isEmpty()) {
             ErrorView(
                 message = state.error ?: "Error al cargar citas",
                 onRetry = { viewModel.loadAppointments() }
@@ -293,21 +302,42 @@ private fun VetAppointmentActionCard(
                         Text("Marcar como Completada")
                     }
                 }
-                2 -> { // Completadas: Crear Historial Médico
-                    OutlinedButton(
-                        onClick = onClick,
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = ButtonDefaults.outlinedButtonColors(
-                            contentColor = MaterialTheme.colorScheme.primary
-                        )
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.AddCard,
-                            contentDescription = null,
-                            modifier = Modifier.size(18.dp)
-                        )
-                        Spacer(modifier = Modifier.width(6.dp))
-                        Text("Crear Historial Médico")
+                2 -> { // Completadas: Crear Historial Médico o indicador
+                    if (appointment.has_record == true) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.Center,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.CheckCircle,
+                                contentDescription = null,
+                                tint = Color(0xFF2E7D32),
+                                modifier = Modifier.size(18.dp)
+                            )
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Text(
+                                "Historial registrado",
+                                color = Color(0xFF2E7D32),
+                                fontWeight = FontWeight.Medium
+                            )
+                        }
+                    } else {
+                        OutlinedButton(
+                            onClick = onClick,
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = ButtonDefaults.outlinedButtonColors(
+                                contentColor = MaterialTheme.colorScheme.primary
+                            )
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.AddCard,
+                                contentDescription = null,
+                                modifier = Modifier.size(18.dp)
+                            )
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Text("Crear Historial Médico")
+                        }
                     }
                 }
             }

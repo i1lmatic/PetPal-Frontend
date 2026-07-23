@@ -7,6 +7,7 @@ import com.petpal.app.data.model.MedicalRecord
 import com.petpal.app.data.model.User
 import com.petpal.app.data.repo.AdminRepository
 import com.petpal.app.data.repo.PetRepository
+import com.petpal.app.data.repo.VetRepository
 import com.petpal.app.data.repo.Result
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -143,6 +144,32 @@ class AddMedicalRecordViewModel(private val repository: AdminRepository) : ViewM
         viewModelScope.launch {
             _state.value = _state.value.copy(isLoading = true, error = null, created = false)
             when (val result = repository.createMedicalRecord(petId, diagnosis, treatment, notes, appointmentId)) {
+                is Result.Success -> _state.value = _state.value.copy(isLoading = false, created = true)
+                is Result.Error -> _state.value = _state.value.copy(
+                    isLoading = false, error = result.message
+                )
+            }
+        }
+    }
+
+    fun clearError() {
+        _state.value = _state.value.copy(error = null)
+    }
+
+    fun onCreatedHandled() {
+        _state.value = _state.value.copy(created = false)
+    }
+}
+
+class VetAddMedicalRecordViewModel(private val vetRepo: VetRepository) : ViewModel() {
+
+    private val _state = MutableStateFlow(MedicalRecordState())
+    val state: StateFlow<MedicalRecordState> = _state.asStateFlow()
+
+    fun createRecord(appointmentId: Int, diagnosis: String, treatment: String, notes: String) {
+        viewModelScope.launch {
+            _state.value = _state.value.copy(isLoading = true, error = null, created = false)
+            when (val result = vetRepo.createMedicalRecord(appointmentId, diagnosis, treatment, notes)) {
                 is Result.Success -> _state.value = _state.value.copy(isLoading = false, created = true)
                 is Result.Error -> _state.value = _state.value.copy(
                     isLoading = false, error = result.message

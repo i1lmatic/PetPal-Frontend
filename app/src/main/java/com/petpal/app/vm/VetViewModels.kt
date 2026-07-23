@@ -86,7 +86,8 @@ data class VetAppointmentsState(
     val isLoading: Boolean = false,
     val selectedTab: Int = 0,
     val appointments: List<Appointment> = emptyList(),
-    val error: String? = null
+    val error: String? = null,
+    val actionError: String? = null
 )
 
 class VetAppointmentsViewModel(
@@ -118,7 +119,7 @@ class VetAppointmentsViewModel(
         viewModelScope.launch {
             when (val r = vetRepo.acceptAppointment(appointmentId)) {
                 is Result.Success -> loadAppointments()
-                is Result.Error -> _state.value = _state.value.copy(error = r.message)
+                is Result.Error -> _state.update { it.copy(actionError = r.message) }
             }
         }
     }
@@ -127,7 +128,7 @@ class VetAppointmentsViewModel(
         viewModelScope.launch {
             when (val r = vetRepo.rejectAppointment(appointmentId)) {
                 is Result.Success -> loadAppointments()
-                is Result.Error -> _state.value = _state.value.copy(error = r.message)
+                is Result.Error -> _state.update { it.copy(actionError = r.message) }
             }
         }
     }
@@ -136,9 +137,13 @@ class VetAppointmentsViewModel(
         viewModelScope.launch {
             when (val r = vetRepo.completeAppointment(appointmentId)) {
                 is Result.Success -> loadAppointments()
-                is Result.Error -> _state.value = _state.value.copy(error = r.message)
+                is Result.Error -> _state.update { it.copy(actionError = r.message) }
             }
         }
+    }
+
+    fun clearActionError() {
+        _state.value = _state.value.copy(actionError = null)
     }
 
     fun clearError() {
@@ -190,6 +195,18 @@ class VetPatientsViewModel(
                 is Result.Error -> _state.value = _state.value.copy(isLoading = false, error = r.message)
             }
         }
+    }
+
+    fun searchPatients(query: String) {
+        _state.update { it.copy(searchQuery = query) }
+        val filtered = if (query.isBlank()) _state.value.allPatients
+        else _state.value.allPatients.filter { item ->
+            item.pet.name.contains(query, ignoreCase = true) ||
+            item.pet.breed.contains(query, ignoreCase = true) ||
+            item.pet.species.contains(query, ignoreCase = true) ||
+            (item.pet.owner_name?.contains(query, ignoreCase = true) == true)
+        }
+        _state.update { it.copy(patients = filtered) }
     }
 
     fun clearError() {

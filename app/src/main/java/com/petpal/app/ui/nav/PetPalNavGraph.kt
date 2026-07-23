@@ -108,6 +108,7 @@ fun PetPalNavGraph(
     vetAppointmentsViewModel: VetAppointmentsViewModel,
     vetPatientsViewModel: VetPatientsViewModel,
     vetBusinessViewModel: VetBusinessViewModel,
+    vetMedicalRecordViewModel: VetAddMedicalRecordViewModel,
     navController: NavHostController = rememberNavController()
 ) {
     val authState by authViewModel.state.collectAsState()
@@ -451,9 +452,7 @@ fun PetPalNavGraph(
         composable(Routes.VET_PATIENTS) {
             com.petpal.app.ui.screens.vet.VetPatientsScreen(
                 viewModel = vetPatientsViewModel,
-                onPetClick = { pet ->
-                    navController.navigate(Routes.petHistory(pet.id))
-                },
+                onPetClick = { },
                 bottomBar = {
                     com.petpal.app.ui.components.VetBottomBar(
                         currentRoute = Routes.VET_PATIENTS,
@@ -496,11 +495,12 @@ fun PetPalNavGraph(
             val appointmentId = backStackEntry.arguments?.getInt("appointmentId") ?: -1
             val apptState = vetAppointmentsViewModel.state.collectAsState().value
             val targetAppt = apptState.appointments.find { it.id == appointmentId }
-            val recState = medicalRecordViewModel.state.collectAsState().value
+            val recState = vetMedicalRecordViewModel.state.collectAsState().value
 
             LaunchedEffect(recState.created) {
                 if (recState.created) {
-                    medicalRecordViewModel.onCreatedHandled()
+                    vetMedicalRecordViewModel.onCreatedHandled()
+                    vetAppointmentsViewModel.loadAppointments()
                     navController.popBackStack()
                 }
             }
@@ -510,7 +510,7 @@ fun PetPalNavGraph(
                 isLoading = recState.isLoading,
                 error = recState.error,
                 onSave = { petId, diag, treat, notes, apptId ->
-                    medicalRecordViewModel.createRecord(petId, diag, treat, notes, apptId)
+                    vetMedicalRecordViewModel.createRecord(apptId ?: -1, diag, treat, notes)
                 },
                 onBack = { navController.popBackStack() }
             )

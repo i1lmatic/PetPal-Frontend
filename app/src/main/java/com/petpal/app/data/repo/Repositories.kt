@@ -78,6 +78,14 @@ class VetRepository(private val api: PetPalApiService) {
     suspend fun getPatients(): Result<List<Pet>> = runCatching {
         Result.Success(api.getVetPatients())
     }.getOrElse { e -> mapError(e) }
+
+    suspend fun createMedicalRecord(
+        appointmentId: Int, diagnosis: String, treatment: String, notes: String
+    ): Result<MedicalRecord> = runCatching {
+        Result.Success(api.createVetMedicalRecord(
+            VetMedicalRecordCreate(appointmentId, diagnosis, treatment, notes)
+        ))
+    }.getOrElse { e -> mapError(e) }
 }
 
 class AdminRepository(private val api: PetPalApiService) {

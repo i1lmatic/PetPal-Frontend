@@ -57,7 +57,7 @@ fun VetPatientsScreen(
                 Box(modifier = Modifier.padding(16.dp)) {
                     SearchBar(
                         query = state.searchQuery,
-                        onQueryChange = { query -> viewModel.loadPatients(query) },
+                        onQueryChange = { query -> viewModel.searchPatients(query) },
                         placeholder = "Buscar paciente, raza o dueño..."
                     )
                 }
