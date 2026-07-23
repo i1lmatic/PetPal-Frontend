@@ -193,6 +193,11 @@ fun PetPalNavGraph(
             )
         }
 
+        val doLogout: () -> Unit = {
+            authViewModel.logout()
+            navController.navigate(Routes.LOGIN) { popUpTo(0) { inclusive = true } }
+        }
+
         val ownerNavHandler: (String) -> Unit = { route ->
             when (route) {
                 "pets" -> navController.navigate(Routes.PETS_LIST) { popUpTo(Routes.PETS_LIST) { inclusive = true } }
@@ -384,11 +389,6 @@ fun PetPalNavGraph(
                 onBack = { navController.popBackStack() },
                 onClearError = { editProfileViewModel.clearError() }
             )
-        }
-
-        val doLogout: () -> Unit = {
-            authViewModel.logout()
-            navController.navigate(Routes.LOGIN) { popUpTo(0) { inclusive = true } }
         }
 
         val vetNavHandler: (String) -> Unit = { route ->
