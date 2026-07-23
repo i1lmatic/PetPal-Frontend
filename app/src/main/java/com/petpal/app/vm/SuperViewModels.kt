@@ -86,6 +86,7 @@ class ManageUsersViewModel(private val repo: AdminRepository) : ViewModel() {
 data class ManageVetsState(
     val isLoading: Boolean = false,
     val vets: List<Veterinary> = emptyList(),
+    val pendingVets: List<User> = emptyList(),
     val error: String? = null
 )
 
@@ -99,6 +100,36 @@ class ManageVetsViewModel(private val repo: AdminRepository) : ViewModel() {
             when (val r = repo.getAdminVets()) {
                 is Result.Success -> _state.value = _state.value.copy(isLoading = false, vets = r.data)
                 is Result.Error -> _state.value = _state.value.copy(isLoading = false, error = r.message)
+            }
+        }
+    }
+
+    fun loadPending() {
+        viewModelScope.launch {
+            _state.value = _state.value.copy(isLoading = true, error = null)
+            when (val r = repo.getPendingVets()) {
+                is Result.Success -> _state.value = _state.value.copy(isLoading = false, pendingVets = r.data)
+                is Result.Error -> _state.value = _state.value.copy(isLoading = false, error = r.message)
+            }
+        }
+    }
+
+    fun approveVet(userId: Int) {
+        viewModelScope.launch {
+            _state.value = _state.value.copy(error = null)
+            when (val r = repo.approveUser(userId)) {
+                is Result.Success -> loadPending()
+                is Result.Error -> _state.value = _state.value.copy(error = r.message)
+            }
+        }
+    }
+
+    fun rejectVet(userId: Int) {
+        viewModelScope.launch {
+            _state.value = _state.value.copy(error = null)
+            when (val r = repo.rejectUser(userId)) {
+                is Result.Success -> loadPending()
+                is Result.Error -> _state.value = _state.value.copy(error = r.message)
             }
         }
     }

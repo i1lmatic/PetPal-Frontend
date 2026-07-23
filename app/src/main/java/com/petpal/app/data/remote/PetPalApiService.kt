@@ -118,6 +118,9 @@ interface PetPalApiService {
     @GET("admin/vets")
     suspend fun getAdminVets(): List<Veterinary>
 
+    @GET("admin/vets/pending")
+    suspend fun getPendingVets(): List<User>
+
     @PATCH("admin/vets/{id}/deactivate")
     suspend fun deactivateVet(@Path("id") vetId: Int): Veterinary
 

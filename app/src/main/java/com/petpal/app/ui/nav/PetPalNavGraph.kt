@@ -556,9 +556,10 @@ fun PetPalNavGraph(
                 bottomBar = { com.petpal.app.ui.components.SuperBottomBar(currentRoute = Routes.SUPER_VETS, onNavigate = superNavHandler, onLogout = doLogout) }
             ) {
                 ManageVetsScreen(
-                    vets = state.vets, isLoading = state.isLoading, error = state.error,
-                    onLoad = { manageVetsViewModel.load() },
-                    onDeactivate = { manageVetsViewModel.deactivate(it) }, onReactivate = { manageVetsViewModel.reactivate(it) }
+                    vets = state.vets, pendingVets = state.pendingVets, isLoading = state.isLoading, error = state.error,
+                    onLoad = { manageVetsViewModel.load() }, onLoadPending = { manageVetsViewModel.loadPending() },
+                    onDeactivate = { manageVetsViewModel.deactivate(it) }, onReactivate = { manageVetsViewModel.reactivate(it) },
+                    onApproveVet = { manageVetsViewModel.approveVet(it) }, onRejectVet = { manageVetsViewModel.rejectVet(it) }
                 )
             }
         }
