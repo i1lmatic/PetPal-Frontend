@@ -12,6 +12,7 @@ import kotlinx.coroutines.launch
 
 data class VetDashboardState(
     val isLoading: Boolean = false,
+    val noBusiness: Boolean = false,
     val clinicName: String = "",
     val doctorName: String = "",
     val appointmentsTodayCount: Int = 0,
@@ -44,6 +45,9 @@ class VetDashboardViewModel(
                     clinicName = biz.name,
                     doctorName = biz.owner_name ?: ""
                 )
+            } else {
+                _state.value = _state.value.copy(isLoading = false, noBusiness = true)
+                return@launch
             }
 
             val appointmentsResult = vetRepo.getAppointments()

@@ -29,6 +29,7 @@ import com.petpal.app.vm.VetDashboardViewModel
 fun VetDashboardScreen(
     viewModel: VetDashboardViewModel,
     onAppointmentClick: (Appointment) -> Unit = {},
+    onNavigateToBusiness: () -> Unit = {},
     bottomBar: @Composable () -> Unit = {}
 ) {
     val state by viewModel.state.collectAsState()
@@ -39,6 +40,45 @@ fun VetDashboardScreen(
     ) { padding ->
         if (state.isLoading) {
             LoadingView(message = "Cargando panel de veterinaria...")
+        } else if (state.noBusiness) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(padding),
+                contentAlignment = Alignment.Center
+            ) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(16.dp),
+                    modifier = Modifier.padding(32.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Store,
+                        contentDescription = null,
+                        modifier = Modifier.size(64.dp),
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                    Text(
+                        text = "Bienvenido a PetPal",
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onBackground
+                    )
+                    Text(
+                        text = "Para comenzar, primero registra tu negocio veterinario.",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Button(
+                        onClick = onNavigateToBusiness,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Icon(Icons.Default.Store, contentDescription = null)
+                        Spacer(Modifier.width(8.dp))
+                        Text("Registrar Negocio")
+                    }
+                }
+            }
         } else if (state.error != null) {
             ErrorView(
                 message = state.error ?: "Error al cargar datos",

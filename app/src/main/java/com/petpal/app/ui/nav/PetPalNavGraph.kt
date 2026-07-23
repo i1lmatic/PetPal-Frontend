@@ -419,9 +419,9 @@ fun PetPalNavGraph(
             com.petpal.app.ui.screens.vet.VetDashboardScreen(
                 viewModel = vetDashboardViewModel,
                 onAppointmentClick = { appt ->
-                    // Navegación a la lista de citas o detalle
                     navController.navigate(Routes.VET_APPOINTMENTS)
                 },
+                onNavigateToBusiness = { navController.navigate(Routes.VET_BUSINESS) },
                 bottomBar = {
                     com.petpal.app.ui.components.VetBottomBar(
                         currentRoute = Routes.VET_DASHBOARD,
