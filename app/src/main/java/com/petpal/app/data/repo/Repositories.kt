@@ -55,6 +55,10 @@ class VetRepository(private val api: PetPalApiService) {
         Result.Success(api.updateVetBusiness(update))
     }.getOrElse { e -> mapError(e) }
 
+    suspend fun deactivateBusiness(): Result<Veterinary> = runCatching {
+        Result.Success(api.deactivateVetBusiness())
+    }.getOrElse { e -> mapError(e) }
+
     suspend fun getAppointments(): Result<List<Appointment>> = runCatching {
         Result.Success(api.getVetAppointments())
     }.getOrElse { e -> mapError(e) }

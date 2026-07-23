@@ -58,6 +58,9 @@ interface PetPalApiService {
     @PATCH("vet/business")
     suspend fun updateVetBusiness(@Body update: VeterinaryUpdate): Veterinary
 
+    @PATCH("vet/business/deactivate")
+    suspend fun deactivateVetBusiness(): Veterinary
+
     @GET("vet/appointments")
     suspend fun getVetAppointments(): List<Appointment>
 

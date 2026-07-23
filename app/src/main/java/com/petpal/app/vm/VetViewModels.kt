@@ -270,6 +270,25 @@ class VetBusinessViewModel(
         _state.value = _state.value.copy(saved = false)
     }
 
+    fun deactivateBusiness() {
+        viewModelScope.launch {
+            _state.value = _state.value.copy(isLoading = true, error = null)
+            when (val r = vetRepo.deactivateBusiness()) {
+                is Result.Success -> {
+                    val biz = r.data
+                    _state.value = _state.value.copy(
+                        isLoading = false,
+                        hasBusiness = true,
+                        name = biz.name, address = biz.address, phone = biz.phone,
+                        specialties = biz.specialties, workingHours = biz.working_hours ?: "",
+                        description = biz.description ?: ""
+                    )
+                }
+                is Result.Error -> _state.value = _state.value.copy(isLoading = false, error = r.message)
+            }
+        }
+    }
+
     fun clearError() {
         _state.value = _state.value.copy(error = null)
     }
