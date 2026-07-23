@@ -92,10 +92,19 @@ class AuthViewModel(
         }
     }
 
-    fun registerVet(email: String, password: String, fullName: String, phone: String) {
+    fun registerVet(
+        email: String, password: String, fullName: String, phone: String,
+        businessName: String = "", businessAddress: String = "", businessPhone: String = "",
+        businessSpecialties: String = "", businessDescription: String? = null,
+        businessWorkingHours: String? = null
+    ) {
         viewModelScope.launch {
             _state.value = _state.value.copy(isLoading = true, error = null)
-            when (val result = repository.registerVet(email, password, fullName, phone)) {
+            when (val result = repository.registerVet(
+                email, password, fullName, phone,
+                businessName, businessAddress, businessPhone,
+                businessSpecialties, businessDescription, businessWorkingHours
+            )) {
                 is Result.Success -> {
                     _state.value = _state.value.copy(isLoading = false, isPending = true)
                 }

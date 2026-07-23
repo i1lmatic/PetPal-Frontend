@@ -128,7 +128,7 @@ class AdminRepository(private val api: PetPalApiService) {
         Result.Success(api.getAdminVets())
     }.getOrElse { e -> mapError(e) }
 
-    suspend fun getPendingVets(): Result<List<User>> = runCatching {
+    suspend fun getPendingVets(): Result<List<PendingVetOut>> = runCatching {
         Result.Success(api.getPendingVets())
     }.getOrElse { e -> mapError(e) }
 

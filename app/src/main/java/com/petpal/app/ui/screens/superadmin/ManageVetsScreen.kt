@@ -11,7 +11,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.petpal.app.data.model.User
+import com.petpal.app.data.model.PendingVetOut
 import com.petpal.app.data.model.Veterinary
 import com.petpal.app.ui.components.GradientHeader
 import com.petpal.app.ui.components.StatusBadge
@@ -19,7 +19,7 @@ import com.petpal.app.ui.components.StatusBadge
 @Composable
 fun ManageVetsScreen(
     vets: List<Veterinary>,
-    pendingVets: List<User>,
+    pendingVets: List<PendingVetOut>,
     isLoading: Boolean,
     error: String?,
     onLoad: () -> Unit,
@@ -81,29 +81,12 @@ fun ManageVetsScreen(
                     }
                 } else {
                     LazyColumn(contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                        items(pendingVets, key = { it.id }) { vet ->
-                            Card(shape = MaterialTheme.shapes.medium, elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)) {
-                                Row(Modifier.fillMaxWidth().padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
-                                    Surface(shape = MaterialTheme.shapes.medium, color = MaterialTheme.colorScheme.secondaryContainer, modifier = Modifier.size(48.dp)) {
-                                        Box(contentAlignment = Alignment.Center) { Icon(Icons.Filled.LocalHospital, null, tint = MaterialTheme.colorScheme.secondary, modifier = Modifier.size(24.dp)) }
-                                    }
-                                    Spacer(Modifier.width(12.dp))
-                                    Column(Modifier.weight(1f)) {
-                                        Text(vet.full_name, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
-                                        Text(vet.email, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                                        Text("Solicitud de registro como veterinaria", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.outline)
-                                    }
-                                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                        Button(onClick = { onApproveVet(vet.id) }, shape = MaterialTheme.shapes.small, contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp), modifier = Modifier.width(90.dp)) {
-                                            Icon(Icons.Filled.Check, null, modifier = Modifier.size(14.dp)); Spacer(Modifier.width(4.dp)); Text("Aprobar", style = MaterialTheme.typography.labelSmall)
-                                        }
-                                        Spacer(Modifier.height(6.dp))
-                                        OutlinedButton(onClick = { onRejectVet(vet.id) }, shape = MaterialTheme.shapes.small, contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp), colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error), modifier = Modifier.width(90.dp)) {
-                                            Icon(Icons.Filled.Close, null, modifier = Modifier.size(14.dp)); Spacer(Modifier.width(4.dp)); Text("Rechazar", style = MaterialTheme.typography.labelSmall)
-                                        }
-                                    }
-                                }
-                            }
+                        items(pendingVets, key = { it.user_id }) { vet ->
+                            PendingVetCard(
+                                vet = vet,
+                                onApprove = { onApproveVet(vet.user_id) },
+                                onReject = { onRejectVet(vet.user_id) }
+                            )
                         }
                     }
                 }
@@ -136,6 +119,82 @@ fun ManageVetsScreen(
                     LazyColumn(contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                         items(inactiveVets, key = { it.id }) { vet -> VetCard(vet, showReactivate = true) { onReactivate(vet.id) } }
                     }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun PendingVetCard(vet: PendingVetOut, onApprove: () -> Unit, onReject: () -> Unit) {
+    Card(shape = MaterialTheme.shapes.medium, elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Surface(shape = MaterialTheme.shapes.medium, color = MaterialTheme.colorScheme.secondaryContainer, modifier = Modifier.size(48.dp)) {
+                    Box(contentAlignment = Alignment.Center) { Icon(Icons.Filled.LocalHospital, null, tint = MaterialTheme.colorScheme.secondary, modifier = Modifier.size(24.dp)) }
+                }
+                Spacer(Modifier.width(12.dp))
+                Column(Modifier.weight(1f)) {
+                    Text(vet.full_name, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+                    Text(vet.email, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+            }
+
+            Spacer(Modifier.height(8.dp))
+            HorizontalDivider()
+            Spacer(Modifier.height(8.dp))
+
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Icon(Icons.Filled.Store, null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(16.dp))
+                Text(vet.business_name, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
+            }
+            if (vet.business_address.isNotBlank()) {
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Icon(Icons.Filled.LocationOn, null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(16.dp))
+                    Text(vet.business_address, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+            }
+            if (vet.business_specialties.isNotBlank()) {
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Icon(Icons.Filled.MedicalServices, null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(16.dp))
+                    Text(vet.business_specialties, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+            }
+            if (vet.business_working_hours.isNullOrBlank().not()) {
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Icon(Icons.Filled.Schedule, null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(16.dp))
+                    Text(vet.business_working_hours ?: "", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+            }
+            if (vet.business_description.isNullOrBlank().not()) {
+                Spacer(Modifier.height(4.dp))
+                Text(vet.business_description ?: "", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+
+            Spacer(Modifier.height(12.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Button(
+                    onClick = onApprove,
+                    modifier = Modifier.weight(1f),
+                    shape = MaterialTheme.shapes.small
+                ) {
+                    Icon(Icons.Filled.Check, null, modifier = Modifier.size(14.dp))
+                    Spacer(Modifier.width(4.dp))
+                    Text("Aprobar", style = MaterialTheme.typography.labelSmall)
+                }
+                OutlinedButton(
+                    onClick = onReject,
+                    modifier = Modifier.weight(1f),
+                    shape = MaterialTheme.shapes.small,
+                    colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error)
+                ) {
+                    Icon(Icons.Filled.Close, null, modifier = Modifier.size(14.dp))
+                    Spacer(Modifier.width(4.dp))
+                    Text("Rechazar", style = MaterialTheme.typography.labelSmall)
                 }
             }
         }

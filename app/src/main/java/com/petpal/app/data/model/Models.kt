@@ -21,6 +21,32 @@ data class UserCreate(
     val password: String
 )
 
+data class VetRegisterRequest(
+    val email: String,
+    val full_name: String,
+    val phone: String,
+    val password: String,
+    val business_name: String = "",
+    val business_address: String = "",
+    val business_phone: String = "",
+    val business_specialties: String = "",
+    val business_description: String? = null,
+    val business_working_hours: String? = null
+)
+
+data class PendingVetOut(
+    val user_id: Int,
+    val email: String,
+    val full_name: String,
+    val phone: String,
+    val business_name: String = "",
+    val business_address: String = "",
+    val business_phone: String = "",
+    val business_specialties: String = "",
+    val business_description: String? = null,
+    val business_working_hours: String? = null
+)
+
 data class Veterinary(
     val id: Int,
     val owner_user_id: Int,

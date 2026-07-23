@@ -86,7 +86,7 @@ class ManageUsersViewModel(private val repo: AdminRepository) : ViewModel() {
 data class ManageVetsState(
     val isLoading: Boolean = false,
     val vets: List<Veterinary> = emptyList(),
-    val pendingVets: List<User> = emptyList(),
+    val pendingVets: List<PendingVetOut> = emptyList(),
     val error: String? = null
 )
 

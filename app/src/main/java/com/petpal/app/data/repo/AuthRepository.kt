@@ -4,6 +4,7 @@ import android.util.Log
 import com.petpal.app.data.model.TokenResponse
 import com.petpal.app.data.model.User
 import com.petpal.app.data.model.UserCreate
+import com.petpal.app.data.model.VetRegisterRequest
 import com.petpal.app.data.remote.PetPalApiService
 import com.petpal.app.data.local.SessionManager
 
@@ -30,9 +31,23 @@ class AuthRepository(
         email: String,
         password: String,
         fullName: String,
-        phone: String
+        phone: String,
+        businessName: String = "",
+        businessAddress: String = "",
+        businessPhone: String = "",
+        businessSpecialties: String = "",
+        businessDescription: String? = null,
+        businessWorkingHours: String? = null
     ): Result<User> = runCatching {
-        val user = api.registerVet(UserCreate(email, full_name = fullName, phone, password))
+        val user = api.registerVet(VetRegisterRequest(
+            email, full_name = fullName, phone, password,
+            business_name = businessName,
+            business_address = businessAddress,
+            business_phone = businessPhone,
+            business_specialties = businessSpecialties,
+            business_description = businessDescription,
+            business_working_hours = businessWorkingHours
+        ))
         Result.Success(user)
     }.getOrElse { e -> mapError(e) }
 

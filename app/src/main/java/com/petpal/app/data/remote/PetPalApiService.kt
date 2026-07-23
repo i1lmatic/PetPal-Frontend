@@ -10,7 +10,7 @@ interface PetPalApiService {
     suspend fun register(@Body user: UserCreate): User
 
     @POST("auth/register-vet")
-    suspend fun registerVet(@Body user: UserCreate): User
+    suspend fun registerVet(@Body user: VetRegisterRequest): User
 
     @FormUrlEncoded
     @POST("auth/login")
@@ -122,7 +122,7 @@ interface PetPalApiService {
     suspend fun getAdminVets(): List<Veterinary>
 
     @GET("admin/vets/pending")
-    suspend fun getPendingVets(): List<User>
+    suspend fun getPendingVets(): List<PendingVetOut>
 
     @PATCH("admin/vets/{id}/deactivate")
     suspend fun deactivateVet(@Path("id") vetId: Int): Veterinary

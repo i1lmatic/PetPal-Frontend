@@ -186,7 +186,12 @@ fun PetPalNavGraph(
             com.petpal.app.ui.screens.auth.RegisterVetScreen(
                 isLoading = authState.isLoading,
                 error = authState.error,
-                onRegister = { email, pass, name, phone -> authViewModel.registerVet(email, pass, name, phone) },
+                onRegister = { email, pass, name, phone, bizName, bizAddr, bizPhone, bizSpecs, bizDesc, bizHours ->
+                    authViewModel.registerVet(
+                        email, pass, name, phone,
+                        bizName, bizAddr, bizPhone, bizSpecs, bizDesc, bizHours
+                    )
+                },
                 onNavigateToLogin = { navController.navigate(Routes.LOGIN) { popUpTo(0) { inclusive = true } } },
                 onClearError = { authViewModel.clearError() }
             )
