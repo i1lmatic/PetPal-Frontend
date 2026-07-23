@@ -104,6 +104,10 @@ fun PetPalNavGraph(
     editProfileViewModel: EditProfileViewModel,
     manageUsersViewModel: ManageUsersViewModel,
     manageVetsViewModel: ManageVetsViewModel,
+    vetDashboardViewModel: VetDashboardViewModel,
+    vetAppointmentsViewModel: VetAppointmentsViewModel,
+    vetPatientsViewModel: VetPatientsViewModel,
+    vetBusinessViewModel: VetBusinessViewModel,
     navController: NavHostController = rememberNavController()
 ) {
     val authState by authViewModel.state.collectAsState()
@@ -407,9 +411,8 @@ fun PetPalNavGraph(
         }
 
         composable(Routes.VET_DASHBOARD) {
-            val vetDashVM: com.petpal.app.vm.VetDashboardViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
             com.petpal.app.ui.screens.vet.VetDashboardScreen(
-                viewModel = vetDashVM,
+                viewModel = vetDashboardViewModel,
                 onAppointmentClick = { appt ->
                     // Navegación a la lista de citas o detalle
                     navController.navigate(Routes.VET_APPOINTMENTS)
@@ -424,9 +427,8 @@ fun PetPalNavGraph(
         }
 
         composable(Routes.VET_APPOINTMENTS) {
-            val vetApptVM: com.petpal.app.vm.VetAppointmentsViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
             com.petpal.app.ui.screens.vet.VetAppointmentsScreen(
-                viewModel = vetApptVM,
+                viewModel = vetAppointmentsViewModel,
                 onAppointmentClick = { appt ->
                     if (appt.status.lowercase() == "completed") {
                         navController.navigate(Routes.vetAddRecord(appt.id))
@@ -442,9 +444,8 @@ fun PetPalNavGraph(
         }
 
         composable(Routes.VET_PATIENTS) {
-            val vetPatientsVM: com.petpal.app.vm.VetPatientsViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
             com.petpal.app.ui.screens.vet.VetPatientsScreen(
-                viewModel = vetPatientsVM,
+                viewModel = vetPatientsViewModel,
                 onPetClick = { pet ->
                     navController.navigate(Routes.petHistory(pet.id))
                 },
@@ -458,9 +459,8 @@ fun PetPalNavGraph(
         }
 
         composable(Routes.VET_BUSINESS) {
-            val vetBusinessVM: com.petpal.app.vm.VetBusinessViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
             com.petpal.app.ui.screens.vet.VetBusinessScreen(
-                viewModel = vetBusinessVM,
+                viewModel = vetBusinessViewModel,
                 bottomBar = {
                     com.petpal.app.ui.components.VetBottomBar(
                         currentRoute = Routes.VET_BUSINESS,
@@ -489,8 +489,7 @@ fun PetPalNavGraph(
             arguments = listOf(navArgument("appointmentId") { type = NavType.IntType })
         ) { backStackEntry ->
             val appointmentId = backStackEntry.arguments?.getInt("appointmentId") ?: -1
-            val vetApptVM: com.petpal.app.vm.VetAppointmentsViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
-            val apptState = vetApptVM.state.collectAsState().value
+            val apptState = vetAppointmentsViewModel.state.collectAsState().value
             val targetAppt = apptState.appointments.find { it.id == appointmentId }
             val recState = medicalRecordViewModel.state.collectAsState().value
 

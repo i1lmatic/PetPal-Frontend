@@ -42,6 +42,38 @@ class VetRepository(private val api: PetPalApiService) {
     suspend fun getVetDetail(vetId: Int): Result<Veterinary> = runCatching {
         Result.Success(api.getVetDetail(vetId))
     }.getOrElse { e -> mapError(e) }
+
+    suspend fun getMyBusiness(): Result<Veterinary> = runCatching {
+        Result.Success(api.getMyVetBusiness())
+    }.getOrElse { e -> mapError(e) }
+
+    suspend fun createBusiness(business: VeterinaryCreate): Result<Veterinary> = runCatching {
+        Result.Success(api.createVetBusiness(business))
+    }.getOrElse { e -> mapError(e) }
+
+    suspend fun updateBusiness(update: VeterinaryUpdate): Result<Veterinary> = runCatching {
+        Result.Success(api.updateVetBusiness(update))
+    }.getOrElse { e -> mapError(e) }
+
+    suspend fun getAppointments(): Result<List<Appointment>> = runCatching {
+        Result.Success(api.getVetAppointments())
+    }.getOrElse { e -> mapError(e) }
+
+    suspend fun acceptAppointment(appointmentId: Int): Result<Appointment> = runCatching {
+        Result.Success(api.acceptVetAppointment(appointmentId))
+    }.getOrElse { e -> mapError(e) }
+
+    suspend fun rejectAppointment(appointmentId: Int): Result<Appointment> = runCatching {
+        Result.Success(api.rejectVetAppointment(appointmentId))
+    }.getOrElse { e -> mapError(e) }
+
+    suspend fun completeAppointment(appointmentId: Int): Result<Appointment> = runCatching {
+        Result.Success(api.completeVetAppointment(appointmentId))
+    }.getOrElse { e -> mapError(e) }
+
+    suspend fun getPatients(): Result<List<Pet>> = runCatching {
+        Result.Success(api.getVetPatients())
+    }.getOrElse { e -> mapError(e) }
 }
 
 class AdminRepository(private val api: PetPalApiService) {

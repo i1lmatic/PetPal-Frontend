@@ -161,6 +161,46 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    private val vetDashboardViewModel: VetDashboardViewModel by viewModels {
+        val vetRepo = VetRepository(app.apiService)
+        object : androidx.lifecycle.ViewModelProvider.Factory {
+            @Suppress("UNCHECKED_CAST")
+            override fun <T : androidx.lifecycle.ViewModel> create(modelClass: Class<T>): T {
+                return VetDashboardViewModel(vetRepo) as T
+            }
+        }
+    }
+
+    private val vetAppointmentsViewModel: VetAppointmentsViewModel by viewModels {
+        val repo = VetRepository(app.apiService)
+        object : androidx.lifecycle.ViewModelProvider.Factory {
+            @Suppress("UNCHECKED_CAST")
+            override fun <T : androidx.lifecycle.ViewModel> create(modelClass: Class<T>): T {
+                return VetAppointmentsViewModel(repo) as T
+            }
+        }
+    }
+
+    private val vetPatientsViewModel: VetPatientsViewModel by viewModels {
+        val repo = VetRepository(app.apiService)
+        object : androidx.lifecycle.ViewModelProvider.Factory {
+            @Suppress("UNCHECKED_CAST")
+            override fun <T : androidx.lifecycle.ViewModel> create(modelClass: Class<T>): T {
+                return VetPatientsViewModel(repo) as T
+            }
+        }
+    }
+
+    private val vetBusinessViewModel: VetBusinessViewModel by viewModels {
+        val repo = VetRepository(app.apiService)
+        object : androidx.lifecycle.ViewModelProvider.Factory {
+            @Suppress("UNCHECKED_CAST")
+            override fun <T : androidx.lifecycle.ViewModel> create(modelClass: Class<T>): T {
+                return VetBusinessViewModel(repo) as T
+            }
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -188,7 +228,11 @@ class MainActivity : ComponentActivity() {
                         clientDetailViewModel = clientDetailViewModel,
                         editProfileViewModel = editProfileViewModel,
                         manageUsersViewModel = manageUsersViewModel,
-                        manageVetsViewModel = manageVetsViewModel
+                        manageVetsViewModel = manageVetsViewModel,
+                        vetDashboardViewModel = vetDashboardViewModel,
+                        vetAppointmentsViewModel = vetAppointmentsViewModel,
+                        vetPatientsViewModel = vetPatientsViewModel,
+                        vetBusinessViewModel = vetBusinessViewModel
                     )
                 }
             }

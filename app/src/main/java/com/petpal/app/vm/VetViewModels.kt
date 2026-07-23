@@ -3,10 +3,8 @@ package com.petpal.app.vm
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.petpal.app.data.model.*
-import com.petpal.app.data.repo.AppointmentRepository
-import com.petpal.app.data.repo.PetRepository
-import com.petpal.app.data.repo.Result
 import com.petpal.app.data.repo.VetRepository
+import com.petpal.app.data.repo.Result
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -14,19 +12,18 @@ import kotlinx.coroutines.launch
 
 data class VetDashboardState(
     val isLoading: Boolean = false,
-    val clinicName: String = "VetCare Clínica",
-    val doctorName: String = "Dr. Carlos",
-    val appointmentsTodayCount: Int = 3,
-    val pendingCount: Int = 5,
-    val completedCount: Int = 12,
-    val totalPatientsCount: Int = 28,
+    val clinicName: String = "",
+    val doctorName: String = "",
+    val appointmentsTodayCount: Int = 0,
+    val pendingCount: Int = 0,
+    val completedCount: Int = 0,
+    val totalPatientsCount: Int = 0,
     val upcomingAppointments: List<Appointment> = emptyList(),
     val error: String? = null
 )
 
 class VetDashboardViewModel(
-    private val appointmentRepo: AppointmentRepository? = null,
-    private val vetRepo: VetRepository? = null
+    private val vetRepo: VetRepository
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(VetDashboardState())
@@ -39,40 +36,40 @@ class VetDashboardViewModel(
     fun loadDashboard() {
         viewModelScope.launch {
             _state.value = _state.value.copy(isLoading = true, error = null)
-            
-            // Datos de demostración estructurados conforme al wireframe del proyecto
-            val mockUpcoming = listOf(
-                Appointment(
-                    id = 1, pet_id = 101, owner_id = 1,
-                    date_time = "Hoy 10:00 AM", reason = "Vacunación anual",
-                    status = "pending", pet_name = "Max", owner_name = "Patrick"
-                ),
-                Appointment(
-                    id = 2, pet_id = 102, owner_id = 2,
-                    date_time = "Hoy 11:30 AM", reason = "Revisión general",
-                    status = "pending", pet_name = "Luna", owner_name = "María"
-                ),
-                Appointment(
-                    id = 3, pet_id = 103, owner_id = 3,
-                    date_time = "Hoy 2:00 PM", reason = "Revisión dental",
-                    status = "confirmed", pet_name = "Rocky", owner_name = "William"
-                ),
-                Appointment(
-                    id = 4, pet_id = 104, owner_id = 4,
-                    date_time = "Mañana 9:00 AM", reason = "Control de peso",
-                    status = "pending", pet_name = "Toby", owner_name = "Carlos"
-                ),
-                Appointment(
-                    id = 5, pet_id = 105, owner_id = 5,
-                    date_time = "Mañana 11:00 AM", reason = "Desparasitación",
-                    status = "confirmed", pet_name = "Mimi", owner_name = "Ana"
-                )
-            )
 
-            _state.value = _state.value.copy(
-                isLoading = false,
-                upcomingAppointments = mockUpcoming
-            )
+            val businessResult = vetRepo.getMyBusiness()
+            if (businessResult is Result.Success) {
+                val biz = businessResult.data
+                _state.value = _state.value.copy(
+                    clinicName = biz.name,
+                    doctorName = biz.owner_name ?: ""
+                )
+            }
+
+            val appointmentsResult = vetRepo.getAppointments()
+            if (appointmentsResult is Result.Success) {
+                val appts = appointmentsResult.data
+                val today = java.time.LocalDate.now().toString()
+                val todayCount = appts.count { it.date_time.startsWith(today) }
+                val pendingCount = appts.count { it.status == "pending" }
+                val completedCount = appts.count { it.status == "completed" }
+                _state.value = _state.value.copy(
+                    upcomingAppointments = appts.filter { it.status in listOf("pending", "confirmed") }.sortedBy { it.date_time },
+                    appointmentsTodayCount = todayCount,
+                    pendingCount = pendingCount,
+                    completedCount = completedCount
+                )
+            } else if (appointmentsResult is Result.Error) {
+                _state.value = _state.value.copy(isLoading = false, error = appointmentsResult.message)
+                return@launch
+            }
+
+            val patientsResult = vetRepo.getPatients()
+            if (patientsResult is Result.Success) {
+                _state.value = _state.value.copy(totalPatientsCount = patientsResult.data.size)
+            }
+
+            _state.value = _state.value.copy(isLoading = false)
         }
     }
 
@@ -83,14 +80,13 @@ class VetDashboardViewModel(
 
 data class VetAppointmentsState(
     val isLoading: Boolean = false,
-    val selectedTab: Int = 0, // 0 = Pendientes, 1 = Confirmadas, 2 = Completadas
+    val selectedTab: Int = 0,
     val appointments: List<Appointment> = emptyList(),
     val error: String? = null
 )
 
 class VetAppointmentsViewModel(
-    private val appointmentRepo: AppointmentRepository? = null,
-    private val adminRepo: com.petpal.app.data.repo.AdminRepository? = null
+    private val vetRepo: VetRepository
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(VetAppointmentsState())
@@ -103,32 +99,10 @@ class VetAppointmentsViewModel(
     fun loadAppointments() {
         viewModelScope.launch {
             _state.value = _state.value.copy(isLoading = true, error = null)
-            val mockList = listOf(
-                Appointment(
-                    id = 1, pet_id = 101, owner_id = 1,
-                    date_time = "25/07 10:00 AM", reason = "Vacunación anual",
-                    status = "pending", pet_name = "Max", owner_name = "Patrick"
-                ),
-                Appointment(
-                    id = 2, pet_id = 102, owner_id = 2,
-                    date_time = "25/07 2:00 PM", reason = "Revisión dental",
-                    status = "pending", pet_name = "Rocky", owner_name = "William"
-                ),
-                Appointment(
-                    id = 3, pet_id = 103, owner_id = 3,
-                    date_time = "22/07 3:00 PM", reason = "Chequeo de piel",
-                    status = "confirmed", pet_name = "Luna", owner_name = "María"
-                ),
-                Appointment(
-                    id = 4, pet_id = 104, owner_id = 4,
-                    date_time = "15/07 9:00 AM", reason = "Control de vacunas",
-                    status = "completed", pet_name = "Toby", owner_name = "Carlos"
-                )
-            )
-            _state.value = _state.value.copy(
-                isLoading = false,
-                appointments = mockList
-            )
+            when (val r = vetRepo.getAppointments()) {
+                is Result.Success -> _state.value = _state.value.copy(isLoading = false, appointments = r.data)
+                is Result.Error -> _state.value = _state.value.copy(isLoading = false, error = r.message)
+            }
         }
     }
 
@@ -137,23 +111,29 @@ class VetAppointmentsViewModel(
     }
 
     fun acceptAppointment(appointmentId: Int) {
-        updateStatus(appointmentId, "confirmed")
+        viewModelScope.launch {
+            when (val r = vetRepo.acceptAppointment(appointmentId)) {
+                is Result.Success -> loadAppointments()
+                is Result.Error -> _state.value = _state.value.copy(error = r.message)
+            }
+        }
     }
 
     fun rejectAppointment(appointmentId: Int) {
-        updateStatus(appointmentId, "cancelled")
+        viewModelScope.launch {
+            when (val r = vetRepo.rejectAppointment(appointmentId)) {
+                is Result.Success -> loadAppointments()
+                is Result.Error -> _state.value = _state.value.copy(error = r.message)
+            }
+        }
     }
 
     fun completeAppointment(appointmentId: Int) {
-        updateStatus(appointmentId, "completed")
-    }
-
-    private fun updateStatus(appointmentId: Int, newStatus: String) {
         viewModelScope.launch {
-            val updated = _state.value.appointments.map { appt ->
-                if (appt.id == appointmentId) appt.copy(status = newStatus) else appt
+            when (val r = vetRepo.completeAppointment(appointmentId)) {
+                is Result.Success -> loadAppointments()
+                is Result.Error -> _state.value = _state.value.copy(error = r.message)
             }
-            _state.value = _state.value.copy(appointments = updated)
         }
     }
 
@@ -172,11 +152,12 @@ data class VetPatientsState(
     val isLoading: Boolean = false,
     val searchQuery: String = "",
     val patients: List<VetPatientItem> = emptyList(),
+    val allPatients: List<VetPatientItem> = emptyList(),
     val error: String? = null
 )
 
 class VetPatientsViewModel(
-    private val petRepo: PetRepository? = null
+    private val vetRepo: VetRepository
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(VetPatientsState())
@@ -189,43 +170,21 @@ class VetPatientsViewModel(
     fun loadPatients(query: String = "") {
         viewModelScope.launch {
             _state.value = _state.value.copy(isLoading = true, error = null, searchQuery = query)
-            val mockList = listOf(
-                VetPatientItem(
-                    pet = Pet(
-                        id = 101, owner_id = 1, name = "Max", species = "Perro", breed = "Labrador",
-                        birth_date = "2022-03-15", weight = 25.0, sex = "Macho", owner_name = "Patrick"
-                    ),
-                    lastVisit = "15/07/2026",
-                    lastTreatment = "Gripe"
-                ),
-                VetPatientItem(
-                    pet = Pet(
-                        id = 102, owner_id = 2, name = "Luna", species = "Gato", breed = "Persa",
-                        birth_date = "2023-01-10", weight = 4.2, sex = "Hembra", owner_name = "María"
-                    ),
-                    lastVisit = "10/07/2026",
-                    lastTreatment = "Vacunación"
-                ),
-                VetPatientItem(
-                    pet = Pet(
-                        id = 103, owner_id = 3, name = "Rocky", species = "Perro", breed = "Bulldog",
-                        birth_date = "2021-08-20", weight = 18.5, sex = "Macho", owner_name = "William"
-                    ),
-                    lastVisit = "05/07/2026",
-                    lastTreatment = "Revisión dental"
-                )
-            )
-            val filtered = if (query.isBlank()) {
-                mockList
-            } else {
-                mockList.filter { item ->
-                    item.pet.name.contains(query, ignoreCase = true) ||
-                    item.pet.breed.contains(query, ignoreCase = true) ||
-                    item.pet.species.contains(query, ignoreCase = true) ||
-                    (item.pet.owner_name?.contains(query, ignoreCase = true) == true)
+            when (val r = vetRepo.getPatients()) {
+                is Result.Success -> {
+                    val items = r.data.map { pet ->
+                        VetPatientItem(pet = pet, lastVisit = "-", lastTreatment = "-")
+                    }
+                    val filtered = if (query.isBlank()) items else items.filter { item ->
+                        item.pet.name.contains(query, ignoreCase = true) ||
+                        item.pet.breed.contains(query, ignoreCase = true) ||
+                        item.pet.species.contains(query, ignoreCase = true) ||
+                        (item.pet.owner_name?.contains(query, ignoreCase = true) == true)
+                    }
+                    _state.value = _state.value.copy(isLoading = false, patients = filtered, allPatients = items)
                 }
+                is Result.Error -> _state.value = _state.value.copy(isLoading = false, error = r.message)
             }
-            _state.value = _state.value.copy(isLoading = false, patients = filtered)
         }
     }
 
@@ -236,51 +195,74 @@ class VetPatientsViewModel(
 
 data class VetBusinessState(
     val isLoading: Boolean = false,
-    val name: String = "VetCare Clínica",
-    val address: String = "San José, Costa Rica",
-    val phone: String = "2222-3333",
-    val specialties: String = "Cirugía, Dermatología, Odontología",
-    val workingHours: String = "Lun-Vie 8:00 - 17:00, Sáb 9:00 - 13:00",
-    val description: String = "Clínica veterinaria especializada con atención personalizada y equipamiento de última generación.",
+    val hasBusiness: Boolean = false,
+    val name: String = "",
+    val address: String = "",
+    val phone: String = "",
+    val specialties: String = "",
+    val workingHours: String = "",
+    val description: String = "",
     val saved: Boolean = false,
-    val deactivated: Boolean = false,
     val error: String? = null
 )
 
 class VetBusinessViewModel(
-    private val vetRepo: VetRepository? = null
+    private val vetRepo: VetRepository
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(VetBusinessState())
     val state: StateFlow<VetBusinessState> = _state.asStateFlow()
 
-    fun saveBusiness(
-        name: String,
-        address: String,
-        phone: String,
-        specialties: String,
-        workingHours: String,
-        description: String
-    ) {
+    init {
+        loadBusiness()
+    }
+
+    fun loadBusiness() {
         viewModelScope.launch {
-            _state.value = _state.value.copy(isLoading = true, error = null, saved = false)
-            _state.value = _state.value.copy(
-                isLoading = false,
-                name = name,
-                address = address,
-                phone = phone,
-                specialties = specialties,
-                workingHours = workingHours,
-                description = description,
-                saved = true
-            )
+            _state.value = _state.value.copy(isLoading = true, error = null)
+            when (val r = vetRepo.getMyBusiness()) {
+                is Result.Success -> {
+                    val biz = r.data
+                    _state.value = _state.value.copy(
+                        isLoading = false, hasBusiness = true,
+                        name = biz.name, address = biz.address, phone = biz.phone,
+                        specialties = biz.specialties, workingHours = biz.working_hours ?: "",
+                        description = biz.description ?: ""
+                    )
+                }
+                is Result.Error -> {
+                    _state.value = _state.value.copy(isLoading = false, hasBusiness = false)
+                }
+            }
         }
     }
 
-    fun deactivateBusiness() {
+    fun saveBusiness(
+        name: String, address: String, phone: String,
+        specialties: String, workingHours: String, description: String
+    ) {
         viewModelScope.launch {
-            _state.value = _state.value.copy(isLoading = true, error = null, deactivated = false)
-            _state.value = _state.value.copy(isLoading = false, deactivated = true)
+            _state.value = _state.value.copy(isLoading = true, error = null, saved = false)
+            val businessData = VeterinaryCreate(
+                name = name, address = address, phone = phone,
+                specialties = specialties, working_hours = workingHours, description = description
+            )
+            val result = if (_state.value.hasBusiness) {
+                vetRepo.updateBusiness(VeterinaryUpdate(
+                    name = name, address = address, phone = phone,
+                    specialties = specialties, working_hours = workingHours, description = description
+                ))
+            } else {
+                vetRepo.createBusiness(businessData)
+            }
+            when (result) {
+                is Result.Success -> _state.value = _state.value.copy(
+                    isLoading = false, saved = true, hasBusiness = true,
+                    name = name, address = address, phone = phone,
+                    specialties = specialties, workingHours = workingHours, description = description
+                )
+                is Result.Error -> _state.value = _state.value.copy(isLoading = false, error = result.message)
+            }
         }
     }
 
