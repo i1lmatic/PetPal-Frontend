@@ -123,7 +123,7 @@ fun WorkingHoursPicker(
                     updateAndSave()
                 },
                 onCloseChange = { h, m ->
-                    days[index] = dayHours.copy(closeHour = h, closeMinute = cm)
+                    days[index] = dayHours.copy(closeHour = h, closeMinute = m)
                     updateAndSave()
                 }
             )
@@ -241,8 +241,7 @@ private fun TimePickerDialog(
                 state = timePickerState,
                 colors = TimePickerDefaults.colors(
                     selectorColor = Green40,
-                    containerColor = MaterialTheme.colorScheme.surface,
-                    selectedWidgetBackgroundColor = Green40.copy(alpha = 0.15f)
+                    containerColor = MaterialTheme.colorScheme.surface
                 )
             )
         },
