@@ -20,6 +20,8 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.petpal.app.ui.components.WorkingHoursPicker
+import com.petpal.app.ui.components.QuickWorkingHoursPresets
 
 @Composable
 fun RegisterVetScreen(
@@ -289,16 +291,18 @@ fun RegisterVetScreen(
 
                 Spacer(modifier = Modifier.height(12.dp))
 
-                OutlinedTextField(
+                Text(
+                    text = "Horario de atención",
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.Medium,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                QuickWorkingHoursPresets(onSelect = { businessWorkingHours = it })
+                Spacer(modifier = Modifier.height(8.dp))
+                WorkingHoursPicker(
                     value = businessWorkingHours,
-                    onValueChange = { businessWorkingHours = it },
-                    label = { Text("Horario de atención") },
-                    leadingIcon = { Icon(Icons.Filled.Schedule, "hours") },
-                    placeholder = { Text("Ej: Lun-Vie 8:00-18:00") },
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = MaterialTheme.shapes.medium,
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next)
+                    onValueChange = { businessWorkingHours = it }
                 )
 
                 Spacer(modifier = Modifier.height(12.dp))

@@ -122,16 +122,15 @@ fun VetBusinessScreen(
                         modifier = Modifier.fillMaxWidth()
                     )
 
-                    // Campo: Horarios de atención
-                    OutlinedTextField(
+                    // Campo: Horarios de atención (interactivo)
+                    Text(
+                        text = "Horarios de atención",
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.Medium
+                    )
+                    WorkingHoursPicker(
                         value = workingHours,
-                        onValueChange = { workingHours = it },
-                        label = { Text("Horarios de atención") },
-                        leadingIcon = {
-                            Icon(Icons.Default.Schedule, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
-                        },
-                        singleLine = true,
-                        modifier = Modifier.fillMaxWidth()
+                        onValueChange = { workingHours = it }
                     )
 
                     // Campo: Descripción
