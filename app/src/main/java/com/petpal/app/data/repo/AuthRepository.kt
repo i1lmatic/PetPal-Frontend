@@ -61,7 +61,7 @@ class AuthRepository(
             Result.Success(res)
         }.getOrElse { e ->
             Log.e("PetPalFlow", "REPO: api.login() FAIL", e)
-            mapError(e)
+            mapError(e, isLogin = true)
         }
     }
 
@@ -87,17 +87,17 @@ class AuthRepository(
         sessionManager.clear()
     }
 
-    private fun mapError(e: Throwable): Result.Error {
+    private fun mapError(e: Throwable, isLogin: Boolean = false): Result.Error {
         val msg = when {
             e is retrofit2.HttpException -> {
                 when (e.code()) {
-                    401 -> "Email o contrase\\u00f1a incorrectos"
-                    403 -> "Cuenta pendiente de aprobaci\\u00f3n"
+                    401 -> if (isLogin) "Email o contrase\u00f1a incorrectos" else "Sesi\u00f3n expirada"
+                    403 -> "Cuenta pendiente de aprobaci\u00f3n"
                     400 -> "Email ya registrado"
                     else -> "Error del servidor (${e.code()})"
                 }
             }
-            else -> e.message ?: "Error de conexi\\u00f3n"
+            else -> e.message ?: "Error de conexi\u00f3n"
         }
         val code = (e as? retrofit2.HttpException)?.code() ?: 0
         return Result.Error(msg, code)

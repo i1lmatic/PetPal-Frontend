@@ -234,7 +234,7 @@ fun RegisterVetScreen(
 
                 OutlinedTextField(
                     value = businessName,
-                    onValueChange = { businessName = it },
+                    onValueChange = { businessName = it; onClearError() },
                     label = { Text("Nombre del negocio") },
                     leadingIcon = { Icon(Icons.Filled.Store, "bizname") },
                     placeholder = { Text("Ej: VetCare Clínica") },
@@ -248,7 +248,7 @@ fun RegisterVetScreen(
 
                 OutlinedTextField(
                     value = businessAddress,
-                    onValueChange = { businessAddress = it },
+                    onValueChange = { businessAddress = it; onClearError() },
                     label = { Text("Dirección") },
                     leadingIcon = { Icon(Icons.Filled.LocationOn, "address") },
                     placeholder = { Text("Ej: San José, Costa Rica") },
@@ -262,7 +262,7 @@ fun RegisterVetScreen(
 
                 OutlinedTextField(
                     value = businessPhone,
-                    onValueChange = { businessPhone = it },
+                    onValueChange = { businessPhone = it; onClearError() },
                     label = { Text("Teléfono del negocio") },
                     leadingIcon = { Icon(Icons.Filled.Phone, "bizphone") },
                     placeholder = { Text("Ej: 2222-3333") },
@@ -279,7 +279,7 @@ fun RegisterVetScreen(
 
                 OutlinedTextField(
                     value = businessSpecialties,
-                    onValueChange = { businessSpecialties = it },
+                    onValueChange = { businessSpecialties = it; onClearError() },
                     label = { Text("Especialidades") },
                     leadingIcon = { Icon(Icons.Filled.MedicalServices, "specs") },
                     placeholder = { Text("Ej: Cirugía, Dermatología, Vacunación") },
@@ -298,18 +298,18 @@ fun RegisterVetScreen(
                     color = MaterialTheme.colorScheme.onSurface
                 )
                 Spacer(modifier = Modifier.height(4.dp))
-                QuickWorkingHoursPresets(onSelect = { businessWorkingHours = it })
+                QuickWorkingHoursPresets(onSelect = { businessWorkingHours = it; onClearError() })
                 Spacer(modifier = Modifier.height(8.dp))
                 WorkingHoursPicker(
                     value = businessWorkingHours,
-                    onValueChange = { businessWorkingHours = it }
+                    onValueChange = { businessWorkingHours = it; onClearError() }
                 )
 
                 Spacer(modifier = Modifier.height(12.dp))
 
                 OutlinedTextField(
                     value = businessDescription,
-                    onValueChange = { businessDescription = it },
+                    onValueChange = { businessDescription = it; onClearError() },
                     label = { Text("Descripción (opcional)") },
                     leadingIcon = { Icon(Icons.Filled.Description, "desc") },
                     placeholder = { Text("Describe tu veterinaria...") },

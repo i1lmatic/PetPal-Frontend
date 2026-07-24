@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -35,6 +36,20 @@ fun LoginScreen(
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
+    var validationError by remember { mutableStateOf<String?>(null) }
+
+    val isEmailValid = email.isBlank() || email.matches(Regex("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$"))
+    val isPasswordLongEnough = password.isBlank() || password.length >= 6
+
+    fun validate(): Boolean {
+        return when {
+            email.isBlank() -> { validationError = "Ingresa tu correo electrónico"; false }
+            !isEmailValid -> { validationError = "Formato de correo inválido"; false }
+            password.isBlank() -> { validationError = "Ingresa tu contraseña"; false }
+            password.length < 6 -> { validationError = "La contraseña debe tener al menos 6 caracteres"; false }
+            else -> { validationError = null; true }
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -94,13 +109,16 @@ fun LoginScreen(
 
             OutlinedTextField(
                 value = email,
-                onValueChange = { email = it; onClearError() },
+                onValueChange = { email = it; onClearError(); validationError = null },
                 label = { Text("Email") },
                 leadingIcon = { Icon(Icons.Filled.Email, "email") },
+                isError = email.isNotBlank() && !isEmailValid,
+                supportingText = if (email.isNotBlank() && !isEmailValid) {{ Text("Formato inv\u00e1lido") }} else null,
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Email,
                     imeAction = ImeAction.Next
                 ),
+                keyboardActions = KeyboardActions(onNext = { /* focus on password */ }),
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth(),
                 shape = MaterialTheme.shapes.medium
@@ -110,9 +128,11 @@ fun LoginScreen(
 
             OutlinedTextField(
                 value = password,
-                onValueChange = { password = it; onClearError() },
-                label = { Text("Contraseña") },
+                onValueChange = { password = it; onClearError(); validationError = null },
+                label = { Text("Contrase\u00f1a") },
                 leadingIcon = { Icon(Icons.Filled.Lock, "password") },
+                isError = password.isNotBlank() && password.length < 6,
+                supportingText = if (password.isNotBlank() && password.length < 6) {{ Text("M\u00ednimo 6 caracteres") }} else null,
                 trailingIcon = {
                     IconButton(onClick = { passwordVisible = !passwordVisible }) {
                         Icon(
@@ -126,15 +146,17 @@ fun LoginScreen(
                     keyboardType = KeyboardType.Password,
                     imeAction = ImeAction.Done
                 ),
+                keyboardActions = KeyboardActions(onDone = { if (validate()) onLogin(email.trim(), password) }),
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth(),
                 shape = MaterialTheme.shapes.medium
             )
 
-            if (error != null) {
+            val displayError = validationError ?: error
+            if (displayError != null) {
                 Spacer(modifier = Modifier.height(12.dp))
                 Text(
-                    text = error,
+                    text = displayError,
                     color = MaterialTheme.colorScheme.error,
                     style = MaterialTheme.typography.bodySmall
                 )
@@ -143,7 +165,7 @@ fun LoginScreen(
             Spacer(modifier = Modifier.height(24.dp))
 
             Button(
-                onClick = { onLogin(email.trim(), password) },
+                onClick = { if (validate()) onLogin(email.trim(), password) },
                 enabled = email.isNotBlank() && password.isNotBlank() && !isLoading,
                 modifier = Modifier
                     .fillMaxWidth()

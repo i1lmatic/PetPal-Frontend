@@ -170,8 +170,8 @@ fun PetPalNavGraph(
                 isLoading = authState.isLoading,
                 error = authState.error,
                 onLogin = { email, pass -> authViewModel.login(email, pass) },
-                onNavigateToRegister = { navController.navigate(Routes.REGISTER_OWNER) { popUpTo(Routes.LOGIN) { inclusive = true } } },
-                onNavigateToRegisterVet = { navController.navigate(Routes.REGISTER_VET) { popUpTo(Routes.LOGIN) { inclusive = true } } },
+                onNavigateToRegister = { navController.navigate(Routes.REGISTER_OWNER) },
+                onNavigateToRegisterVet = { navController.navigate(Routes.REGISTER_VET) },
                 onClearError = { authViewModel.clearError() }
             )
         }

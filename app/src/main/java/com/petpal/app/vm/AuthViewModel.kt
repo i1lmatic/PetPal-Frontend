@@ -142,9 +142,13 @@ class AuthViewModel(
                     )
                 }
                 is Result.Error -> {
-                    Log.e("PetPalFlow", "VM: loadProfile ERROR -> limpiando sesion msg=${result.message}")
-                    sessionManager.clear()
-                    _state.value = AuthState(isCheckingSession = false, error = result.message)
+                    Log.e("PetPalFlow", "VM: loadProfile ERROR code=${result.code} msg=${result.message}")
+                    if (result.code == 401 || result.code == 403) {
+                        sessionManager.clear()
+                        _state.value = AuthState(isCheckingSession = false, error = result.message)
+                    } else {
+                        _state.value = _state.value.copy(isLoading = false, error = result.message, isCheckingSession = false)
+                    }
                 }
             }
         }
