@@ -14,6 +14,9 @@ import com.petpal.app.data.model.Pet
 import com.petpal.app.ui.components.GradientHeader
 import java.text.SimpleDateFormat
 import java.util.*
+import java.time.LocalDate
+import java.time.LocalTime
+import java.time.format.DateTimeFormatter
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -35,6 +38,7 @@ fun BookAppointmentScreen(
     var showDatePicker by remember { mutableStateOf(false) }
     var showTimePicker by remember { mutableStateOf(false) }
     var petExpanded by remember { mutableStateOf(false) }
+    var validationError by remember { mutableStateOf<String?>(null) }
 
     LaunchedEffect(success) {
         if (success == true) onBackHandled()
@@ -166,9 +170,10 @@ fun BookAppointmentScreen(
                 minLines = 2
             )
 
-            if (error != null) {
+            val displayError = error ?: validationError
+            if (displayError != null) {
                 Spacer(modifier = Modifier.height(12.dp))
-                Text(error, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
+                Text(displayError, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
             }
 
             Spacer(modifier = Modifier.height(24.dp))
@@ -182,8 +187,22 @@ fun BookAppointmentScreen(
 
                 Button(
                     onClick = {
+                        validationError = null
                         if (selectedPetId != null && date.isNotBlank() && time.isNotBlank() && reason.isNotBlank()) {
-                            onBook(selectedPetId!!, "${date}T${time}:00", reason.trim(), notes.trim())
+                            val today = LocalDate.now().toString()
+                            if (date < today) {
+                                validationError = "No puedes agendar citas en fechas pasadas"
+                            } else if (date == today) {
+                                val now = LocalTime.now()
+                                val selected = LocalTime.parse(time, DateTimeFormatter.ofPattern("HH:mm"))
+                                if (selected.isBefore(now)) {
+                                    validationError = "No puedes agendar citas en un horario que ya pasó"
+                                } else {
+                                    onBook(selectedPetId!!, "${date}T${time}:00", reason.trim(), notes.trim())
+                                }
+                            } else {
+                                onBook(selectedPetId!!, "${date}T${time}:00", reason.trim(), notes.trim())
+                            }
                         }
                     },
                     enabled = selectedPetId != null && date.isNotBlank() && time.isNotBlank() && reason.isNotBlank() && !isLoading,
