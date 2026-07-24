@@ -81,8 +81,10 @@ class AuthViewModel(
             Log.d("PetPalFlow", "VM: 2. llamando repository.register()")
             when (val result = repository.register(email, password, fullName, phone)) {
                 is Result.Success -> {
-                    Log.d("PetPalFlow", "VM: 3. register SUCCESS -> isPending=true")
-                    _state.value = _state.value.copy(isLoading = false, isPending = true)
+                    val user = result.data
+                    val pending = user.status == "pending"
+                    Log.d("PetPalFlow", "VM: 3. register SUCCESS status=${user.status} isPending=$pending")
+                    _state.value = _state.value.copy(isLoading = false, isPending = pending)
                 }
                 is Result.Error -> {
                     Log.e("PetPalFlow", "VM: 3. register ERROR msg=${result.message}")
@@ -106,7 +108,9 @@ class AuthViewModel(
                 businessSpecialties, businessDescription, businessWorkingHours
             )) {
                 is Result.Success -> {
-                    _state.value = _state.value.copy(isLoading = false, isPending = true)
+                    val user = result.data
+                    val pending = user.status == "pending"
+                    _state.value = _state.value.copy(isLoading = false, isPending = pending)
                 }
                 is Result.Error -> {
                     _state.value = _state.value.copy(isLoading = false, error = result.message)
