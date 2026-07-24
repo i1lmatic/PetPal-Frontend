@@ -54,11 +54,14 @@ fun LoginScreen(
                 )
                 .padding(horizontal = 24.dp, vertical = 48.dp)
         ) {
-            Column {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
                 Icon(
                     imageVector = Icons.Filled.Pets,
                     contentDescription = null,
-                    modifier = Modifier.size(48.dp),
+                    modifier = Modifier.size(56.dp),
                     tint = Color.White
                 )
                 Spacer(modifier = Modifier.height(12.dp))
