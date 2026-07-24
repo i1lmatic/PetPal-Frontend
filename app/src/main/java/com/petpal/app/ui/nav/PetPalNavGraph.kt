@@ -49,6 +49,7 @@ object Routes {
     const val VET_BUSINESS = "vet_business"
     const val VET_PROFILE = "vet_profile"
     const val VET_ADD_RECORD = "vet_add_record/{appointmentId}"
+    const val VET_PET_DETAIL = "vet_pet_detail/{petId}"
 
     // --- Módulo Superusuario (Super) ---
     const val SUPER_DASHBOARD = "super_dashboard"
@@ -72,6 +73,7 @@ object Routes {
     fun vetDetail(vetId: Int) = "vet_detail/$vetId"
     fun bookAppointment(vetId: Int) = "book_appointment/$vetId"
     fun vetAddRecord(appointmentId: Int) = "vet_add_record/$appointmentId"
+    fun vetPetDetail(petId: Int) = "vet_pet_detail/$petId"
     fun clientDetail(userId: Int) = "admin_client_detail/$userId"
     fun petHistory(petId: Int) = "admin_pet_history/$petId"
 }
@@ -126,6 +128,7 @@ fun PetPalNavGraph(
         route == Routes.VET_DASHBOARD || route == Routes.VET_APPOINTMENTS || route == Routes.VET_PATIENTS
                 || route == Routes.VET_BUSINESS || route == Routes.VET_PROFILE
                 || route.toString().startsWith("vet_add_record")
+                || route.toString().startsWith("vet_pet_detail")
     }
 
     val isSuperScreen = { route: String? ->
@@ -458,7 +461,7 @@ fun PetPalNavGraph(
             LaunchedEffect(Unit) { vetPatientsViewModel.loadPatients() }
             com.petpal.app.ui.screens.vet.VetPatientsScreen(
                 viewModel = vetPatientsViewModel,
-                onPetClick = { },
+                onPetClick = { pet -> navController.navigate(Routes.vetPetDetail(pet.id)) },
                 bottomBar = {
                     com.petpal.app.ui.components.VetBottomBar(
                         currentRoute = Routes.VET_PATIENTS,
@@ -493,6 +496,26 @@ fun PetPalNavGraph(
                     )
                 }
             )
+        }
+
+        composable(
+            Routes.VET_PET_DETAIL,
+            arguments = listOf(navArgument("petId") { type = NavType.IntType })
+        ) { entry ->
+            val petId = entry.arguments?.getInt("petId") ?: return@composable
+            val detailState = petDetailViewModel.state.collectAsState().value
+            val vetPatientsState = vetPatientsViewModel.state.collectAsState().value
+            val pet = vetPatientsState.allPatients.find { p -> p.pet.id == petId }?.pet
+            if (pet != null) {
+                com.petpal.app.ui.screens.owner.PetDetailScreen(
+                    pet = pet,
+                    records = detailState.records,
+                    isLoading = detailState.isLoading,
+                    error = detailState.error,
+                    onLoadHistory = { petDetailViewModel.loadHistory(petId) },
+                    onBack = { navController.popBackStack() }
+                )
+            }
         }
 
         composable(
