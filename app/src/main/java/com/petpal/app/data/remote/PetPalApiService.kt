@@ -49,6 +49,9 @@ interface PetPalApiService {
     @GET("vets/{id}")
     suspend fun getVetDetail(@Path("id") vetId: Int): Veterinary
 
+    @GET("vets/{id}/slots")
+    suspend fun getVetSlots(@Path("id") vetId: Int, @Query("date") date: String): VetSlotsResponse
+
     @GET("vet/business")
     suspend fun getMyVetBusiness(): Veterinary
 

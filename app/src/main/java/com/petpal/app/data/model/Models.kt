@@ -201,6 +201,12 @@ data class DashboardStats(
     val cancelled_appointments: Int = 0
 )
 
+data class VetSlotsResponse(
+    val working_hours: String,
+    val slots: List<String>,
+    val booked: List<String>
+)
+
 data class UserDetail(
     val id: Int,
     val email: String,

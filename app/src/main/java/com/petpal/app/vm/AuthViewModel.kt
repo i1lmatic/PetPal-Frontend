@@ -82,9 +82,12 @@ class AuthViewModel(
             when (val result = repository.register(email, password, fullName, phone)) {
                 is Result.Success -> {
                     val user = result.data
-                    val pending = user.status == "pending"
-                    Log.d("PetPalFlow", "VM: 3. register SUCCESS status=${user.status} isPending=$pending")
-                    _state.value = _state.value.copy(isLoading = false, isPending = pending)
+                    Log.d("PetPalFlow", "VM: 3. register SUCCESS status=${user.status}")
+                    if (user.status == "pending") {
+                        _state.value = _state.value.copy(isLoading = false, isPending = true)
+                    } else {
+                        login(email, password)
+                    }
                 }
                 is Result.Error -> {
                     Log.e("PetPalFlow", "VM: 3. register ERROR msg=${result.message}")

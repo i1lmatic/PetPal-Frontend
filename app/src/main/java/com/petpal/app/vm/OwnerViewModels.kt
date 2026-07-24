@@ -55,10 +55,16 @@ data class AppointmentsState(
     val isLoading: Boolean = false,
     val appointments: List<Appointment> = emptyList(),
     val error: String? = null,
-    val created: Boolean = false
+    val created: Boolean = false,
+    val slotsLoading: Boolean = false,
+    val slots: VetSlotsResponse? = null,
+    val vetName: String = ""
 )
 
-class AppointmentsViewModel(private val repository: AppointmentRepository) : ViewModel() {
+class AppointmentsViewModel(
+    private val repository: AppointmentRepository,
+    private val vetRepository: VetRepository
+) : ViewModel() {
 
     private val _state = MutableStateFlow(AppointmentsState())
     val state: StateFlow<AppointmentsState> = _state.asStateFlow()
@@ -82,6 +88,16 @@ class AppointmentsViewModel(private val repository: AppointmentRepository) : Vie
                     loadAppointments()
                 }
                 is Result.Error -> _state.value = _state.value.copy(isLoading = false, error = result.message)
+            }
+        }
+    }
+
+    fun loadSlots(vetId: Int, date: String, vetName: String = "") {
+        viewModelScope.launch {
+            _state.value = _state.value.copy(slotsLoading = true, vetName = vetName)
+            when (val result = vetRepository.getVetSlots(vetId, date)) {
+                is Result.Success -> _state.value = _state.value.copy(slotsLoading = false, slots = result.data)
+                is Result.Error -> _state.value = _state.value.copy(slotsLoading = false)
             }
         }
     }

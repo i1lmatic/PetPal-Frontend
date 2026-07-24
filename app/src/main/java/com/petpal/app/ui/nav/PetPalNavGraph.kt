@@ -338,6 +338,9 @@ fun PetPalNavGraph(
                 isLoading = apptState.isLoading,
                 error = apptState.error,
                 success = apptState.created,
+                slots = apptState.slots,
+                slotsLoading = apptState.slotsLoading,
+                onLoadSlots = { date -> appointmentsViewModel.loadSlots(vetId, date) },
                 onBook = { petId, dateTime, reason, notes ->
                     appointmentsViewModel.createAppointment(
                         com.petpal.app.data.model.AppointmentCreate(

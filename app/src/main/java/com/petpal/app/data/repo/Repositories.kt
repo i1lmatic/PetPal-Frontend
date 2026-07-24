@@ -43,6 +43,10 @@ class VetRepository(private val api: PetPalApiService) {
         Result.Success(api.getVetDetail(vetId))
     }.getOrElse { e -> mapError(e) }
 
+    suspend fun getVetSlots(vetId: Int, date: String): Result<VetSlotsResponse> = runCatching {
+        Result.Success(api.getVetSlots(vetId, date))
+    }.getOrElse { e -> mapError(e) }
+
     suspend fun getMyBusiness(): Result<Veterinary> = runCatching {
         Result.Success(api.getMyVetBusiness())
     }.getOrElse { e -> mapError(e) }

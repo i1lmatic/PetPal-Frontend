@@ -43,10 +43,11 @@ class MainActivity : ComponentActivity() {
 
     private val appointmentsViewModel: AppointmentsViewModel by viewModels {
         val repo = AppointmentRepository(app.apiService)
+        val vetRepo = VetRepository(app.apiService)
         object : androidx.lifecycle.ViewModelProvider.Factory {
             @Suppress("UNCHECKED_CAST")
             override fun <T : androidx.lifecycle.ViewModel> create(modelClass: Class<T>): T {
-                return AppointmentsViewModel(repo) as T
+                return AppointmentsViewModel(repo, vetRepo) as T
             }
         }
     }
