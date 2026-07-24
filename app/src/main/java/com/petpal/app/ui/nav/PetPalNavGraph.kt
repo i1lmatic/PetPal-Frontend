@@ -420,6 +420,7 @@ fun PetPalNavGraph(
         }
 
         composable(Routes.VET_DASHBOARD) {
+            LaunchedEffect(Unit) { vetDashboardViewModel.loadDashboard() }
             com.petpal.app.ui.screens.vet.VetDashboardScreen(
                 viewModel = vetDashboardViewModel,
                 onAppointmentClick = { appt ->
@@ -436,6 +437,7 @@ fun PetPalNavGraph(
         }
 
         composable(Routes.VET_APPOINTMENTS) {
+            LaunchedEffect(Unit) { vetAppointmentsViewModel.loadAppointments() }
             com.petpal.app.ui.screens.vet.VetAppointmentsScreen(
                 viewModel = vetAppointmentsViewModel,
                 onAppointmentClick = { appt ->
@@ -453,6 +455,7 @@ fun PetPalNavGraph(
         }
 
         composable(Routes.VET_PATIENTS) {
+            LaunchedEffect(Unit) { vetPatientsViewModel.loadPatients() }
             com.petpal.app.ui.screens.vet.VetPatientsScreen(
                 viewModel = vetPatientsViewModel,
                 onPetClick = { },
@@ -466,6 +469,7 @@ fun PetPalNavGraph(
         }
 
         composable(Routes.VET_BUSINESS) {
+            LaunchedEffect(Unit) { vetBusinessViewModel.loadBusiness() }
             com.petpal.app.ui.screens.vet.VetBusinessScreen(
                 viewModel = vetBusinessViewModel,
                 bottomBar = {

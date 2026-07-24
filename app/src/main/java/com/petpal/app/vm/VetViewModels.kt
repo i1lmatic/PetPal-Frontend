@@ -31,10 +31,6 @@ class VetDashboardViewModel(
     private val _state = MutableStateFlow(VetDashboardState())
     val state: StateFlow<VetDashboardState> = _state.asStateFlow()
 
-    init {
-        loadDashboard()
-    }
-
     fun loadDashboard() {
         viewModelScope.launch {
             _state.value = _state.value.copy(isLoading = true, error = null)
@@ -97,10 +93,6 @@ class VetAppointmentsViewModel(
 
     private val _state = MutableStateFlow(VetAppointmentsState())
     val state: StateFlow<VetAppointmentsState> = _state.asStateFlow()
-
-    init {
-        loadAppointments()
-    }
 
     fun loadAppointments() {
         viewModelScope.launch {
@@ -173,10 +165,6 @@ class VetPatientsViewModel(
     private val _state = MutableStateFlow(VetPatientsState())
     val state: StateFlow<VetPatientsState> = _state.asStateFlow()
 
-    init {
-        loadPatients()
-    }
-
     fun loadPatients(query: String = "") {
         viewModelScope.launch {
             _state.value = _state.value.copy(isLoading = true, error = null, searchQuery = query)
@@ -234,10 +222,6 @@ class VetBusinessViewModel(
 
     private val _state = MutableStateFlow(VetBusinessState())
     val state: StateFlow<VetBusinessState> = _state.asStateFlow()
-
-    init {
-        loadBusiness()
-    }
 
     fun loadBusiness() {
         viewModelScope.launch {
